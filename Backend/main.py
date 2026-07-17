@@ -2,23 +2,9 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import bcrypt
-import os
-import psycopg2
-from dotenv import load_dotenv
+from database import get_db_connection
 
 
-# Load environment variables from .env file
-load_dotenv()
-
-# Database connection parameters from environment variables
-def get_db_connection():
-    return psycopg2.connect(
-        host=os.getenv("DB_HOST"),
-        port=os.getenv("DB_PORT"),
-        dbname=os.getenv("DB_NAME"),
-        user=os.getenv("DB_USER"),
-        password=os.getenv("DB_PASSWORD")
-    )
 
 
 app = FastAPI()
