@@ -1,7 +1,19 @@
 from fastapi.testclient import TestClient
 from main import app
+import bcrypt
+from main import hash_password
 
 client = TestClient(app)
+
+def test_password_is_hashed_with_bcrypt():
+    plain = "mypassword123"
+    hashed = hash_password(plain)
+    # Hash must not be the plain password
+    assert hashed != plain
+    # bcrypt hashes start with $2b$
+    assert hashed.startswith("$2b")
+    # bcrypt must be able to verify the plain password against the hash
+    assert bcrypt.checkpw(plain.encode('utf-8'), hashed.encode('utf-8'))
 
 
 def test_successful_registration():

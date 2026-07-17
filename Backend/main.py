@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+import bcrypt
 
 
 app = FastAPI()
@@ -19,8 +20,12 @@ def find_by_email(email):
     return _placeholder_accounts.get(email)
 
 def hash_password(password):
-    # Placeholder for password hashing (bcrypt)
-    return password + "_hashed"
+    # Convert the password text into bytes using bcrypt then has it with a generated salt
+    password_bytes = password.encode('utf-8')
+    salt = bcrypt.gensalt()
+    hashed_password = bcrypt.hashpw(password_bytes, salt)
+    # Store as text
+    return hashed_password.decode('utf-8')
 
 def create_user_account(username, email, password_hash):
     # User Account Object that will be stored.
