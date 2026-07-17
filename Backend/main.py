@@ -1,10 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-import bcrypt
-from database import get_db_connection
-
-
+from models.user import UserAccount
 
 
 app = FastAPI()
@@ -18,36 +15,6 @@ app.add_middleware(
 )
 
 
-def find_by_email(email):
-    # Open a connection and ask the database if this email exists
-    connection = get_db_connection()
-    cursor = connection.cursor()
-    cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
-    account = cursor.fetchone()
-    cursor.close()
-    connection.close()
-    return account
-
-def hash_password(password):
-    # Convert the password text into bytes using bcrypt then has it with a generated salt
-    password_bytes = password.encode('utf-8')
-    salt = bcrypt.gensalt()
-    hashed_password = bcrypt.hashpw(password_bytes, salt)
-    # Store as text
-    return hashed_password.decode('utf-8')
-
-def create_user_account(username, email, password_hash):
-    # Open a connection and insert the new user into the database
-    connection = get_db_connection()
-    cursor = connection.cursor()
-    cursor.execute("INSERT INTO users (username, email, password_hash) VALUES (%s, %s, %s) RETURNING user_id, username, email", (username, email, password_hash))
-    new_user = cursor.fetchone()
-    connection.commit()
-    cursor.close()
-    connection.close()
-    # Return the newly created user account
-    return {"user_id": new_user[0], "username" : new_user[1], "email": new_user[2]}
-
 # Shape of Data the registration form sends
 class RegisterRequest(BaseModel):
     username: str
@@ -58,17 +25,20 @@ class RegisterRequest(BaseModel):
 # Registration controller to confirm data is recieved
 @app.post("/register")
 def register(payload : RegisterRequest):
-    # Account Controller Self Validate Input
+    # Validating Input
     if not payload.username or not payload.email or not payload.password:
         raise HTTPException(status_code=400, detail="All fields are required.")
     
-    # Account Controller findbyEmail , no existing account
-    if find_by_email(payload.email) is not None:
+    # Check no existing account with this email
+    if UserAccount.find_by_email(payload.email) is not None:
         raise HTTPException(status_code=409, detail="Email already registered.")
-    # Account Controller, hashPassword  
-    password_hash = hash_password(payload.password)
-    # <<create>> UserAccount, then save , INSERT
-    account = create_user_account(payload.username, payload.email, password_hash)
-    # Return success up to the view,
-    print("Recieved registration:", payload.username, payload.email)
-    return {"message" : f"Received registration for {payload.username}"}
+    
+    # Hash the password
+    password_hash = UserAccount.hash_password(payload.password)
+    
+    # Create the UserAccount object and save it to the database
+    user = UserAccount(payload.username, payload.email, password_hash)
+    user.save()
+    
+    # Return success up to the view
+    return {"message": f"User created successfully for {payload.username}"}
