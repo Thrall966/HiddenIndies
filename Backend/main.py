@@ -2,6 +2,23 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import bcrypt
+import os
+import psycopg2
+from dotenv import load_dotenv
+
+
+# Load environment variables from .env file
+load_dotenv()
+
+# Database connection parameters from environment variables
+def get_db_connection():
+    return psycopg2.connect(
+        host=os.getenv("DB_HOST"),
+        port=os.getenv("DB_PORT"),
+        dbname=os.getenv("DB_NAME"),
+        user=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASSWORD")
+    )
 
 
 app = FastAPI()
@@ -13,11 +30,17 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"]     
 )
-#Placeholder for the Model and Database
-_placeholder_accounts = {}
+
 
 def find_by_email(email):
-    return _placeholder_accounts.get(email)
+    # Open a connection and ask the database if this email exists
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
+    account = cursor.fetchone()
+    cursor.close()
+    connection.close()
+    return account
 
 def hash_password(password):
     # Convert the password text into bytes using bcrypt then has it with a generated salt
@@ -28,10 +51,16 @@ def hash_password(password):
     return hashed_password.decode('utf-8')
 
 def create_user_account(username, email, password_hash):
-    # User Account Object that will be stored.
-    account = {"username": username, "email": email, "password_hash": password_hash}
-    _placeholder_accounts[email] = account
-    return account
+    # Open a connection and insert the new user into the database
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    cursor.execute("INSERT INTO users (username, email, password_hash) VALUES (%s, %s, %s) RETURNING user_id, username, email", (username, email, password_hash))
+    new_user = cursor.fetchone()
+    connection.commit()
+    cursor.close()
+    connection.close()
+    # Return the newly created user account
+    return {"user_id": new_user[0], "username" : new_user[1], "email": new_user[2]}
 
 # Shape of Data the registration form sends
 class RegisterRequest(BaseModel):
