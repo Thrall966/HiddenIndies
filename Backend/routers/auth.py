@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from models.user import UserAccount
+from auth_utils import create_access_token
 
 
 # Router groups related endpoints, main.py will include this router
@@ -34,3 +35,30 @@ def register(payload: RegisterRequest):
 
     
     return {"message": f"Received registration for {payload.username}"}
+
+
+# Shape of data the login form sends
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
+# Login controller to confirm data is received
+@router.post("/login")
+def login(payload: LoginRequest):
+    # Validating Input
+    if not payload.email or not payload.password:
+        raise HTTPException(status_code=400, detail="Email and password are required.")
+
+    # Find the user by email
+    user = UserAccount.find_by_email(payload.email)
+    if user is None:
+        raise HTTPException(status_code=401, detail="Invalid email or password.")
+
+    # Verify the password
+    if not user.verify_password(payload.password):
+        raise HTTPException(status_code=401, detail="Invalid email or password.")
+
+    # Create a JWT token for the authenticated user
+    token = create_access_token(user.email)
+
+    return {"access_token": token, "token_type": "bearer"}

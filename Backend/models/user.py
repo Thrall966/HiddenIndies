@@ -30,6 +30,9 @@ class UserAccount:
             return None
         # Build a UserAccount object from the database row
         return UserAccount(username=row[0], email=row[1], password_hash=row[2])
+    def verify_password(self, plain_password):
+        # Check a submitted password against this user's stored hash
+        return bcrypt.checkpw(plain_password.encode('utf-8'), self.password_hash.encode('utf-8'))
     def save(self):
         # Open a connection and insert the new user into the database
         connection = get_db_connection()
