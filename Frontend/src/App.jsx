@@ -1,12 +1,7 @@
-import RegisterForm from "./RegisterForm";
+import AuthForm from "./AuthForm";
 
 function App() {
-  return (
-    <div>
-      <h1 className="text-3xl font-bold text-blue-600">HiddenIndies</h1>
-      <RegisterForm />
-    </div>
-  );
+  return <AuthForm />;
 }
 
 export default App;
