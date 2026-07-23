@@ -9,6 +9,9 @@ class UserAccount:
         self.username = username
         self.email = email
         self.password_hash = password_hash
+
+
+
     @staticmethod
     def hash_password(password):
         # Convert the password text into bytes using bcrypt then has it with a generated salt
@@ -17,6 +20,9 @@ class UserAccount:
         hashed_password = bcrypt.hashpw(password_bytes, salt)
         # Store as text
         return hashed_password.decode('utf-8')    
+
+
+    
     @staticmethod
     def find_by_email(email):
         # Open a connection and ask the database if this email exists
@@ -30,9 +36,15 @@ class UserAccount:
             return None
         # Build a UserAccount object from the database row
         return UserAccount(username=row[0], email=row[1], password_hash=row[2])
+
+
+    
     def verify_password(self, plain_password):
         # Check a submitted password against this user's stored hash
         return bcrypt.checkpw(plain_password.encode('utf-8'), self.password_hash.encode('utf-8'))
+
+
+    
     def save(self):
         # Open a connection and insert the new user into the database
         connection = get_db_connection()
