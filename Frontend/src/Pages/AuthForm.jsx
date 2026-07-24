@@ -1,7 +1,9 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 function AuthForm() {
   // which tab is active register or login
+  const navigate = useNavigate();
   const [mode, setMode] = useState("register");
 
   // form field state
@@ -43,10 +45,11 @@ function AuthForm() {
         setIsError(false);
         if (mode === "register") {
           setMessage(data.message);
-        } else {
-          // login returns a JWT token
-          setMessage("Logged in successfully.");
-          console.log("Token:", data.access_token);
+       } else {
+          // store the token and username so the app knows who is logged in
+          localStorage.setItem("token", data.access_token);
+          localStorage.setItem("username", data.username);
+          navigate("/browse");
         }
       } else {
         setIsError(true);

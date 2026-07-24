@@ -61,4 +61,8 @@ def login(payload: LoginRequest):
     # Create a JWT token for the authenticated user
     token = create_access_token(user.email)
 
-    return {"access_token": token, "token_type": "bearer"}
+    return {
+        "access_token": token,
+        "token_type": "bearer",
+        "username": user.username,
+    }
