@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 function AuthForm() {
   // which tab is active register or login
   const navigate = useNavigate();
-  const [mode, setMode] = useState("register");
+  const location = useLocation();
+  const [mode, setMode] = useState(location.pathname === "/login" ? "login" : "register");
 
   // form field state
   const [username, setUsername] = useState("");
@@ -22,11 +23,11 @@ function AuthForm() {
     setIsError(false);
   }
 
-  // sends the form to the backend — /register or /login depending on mode
+  // sends the form to the backend, /register or /login depending on mode
   async function handleSubmit() {
     const endpoint = mode === "register" ? "/register" : "/login";
 
-    // register sends three fields login only needs email and password
+    // register sends three fields, login only needs email and password
     const body =
       mode === "register"
         ? { username, email, password }
@@ -45,7 +46,7 @@ function AuthForm() {
         setIsError(false);
         if (mode === "register") {
           setMessage(data.message);
-       } else {
+        } else {
           // store the token and username so the app knows who is logged in
           localStorage.setItem("token", data.access_token);
           localStorage.setItem("username", data.username);
@@ -63,10 +64,10 @@ function AuthForm() {
 
   return (
     <div className="min-h-screen bg-[#ececdf] flex items-center justify-center p-6">
-      {/* Card */}
+      {/* card */}
       <div className="bg-white border border-[#e6e6e0] rounded shadow-lg w-full max-w-md min-h-[520px]">
         <div className="px-8 py-10 flex flex-col items-center">
-          {/* Brand */}
+          {/* brand */}
           <div className="text-2xl font-bold text-[#2b2b2b]">HiddenIndies</div>
           <div className="text-xs text-[#a8a8a0] mt-1 font-mono">
             find the games nobody's talking about
@@ -98,8 +99,14 @@ function AuthForm() {
             </button>
           </div>
 
-          {/* fields */}
-          <div className="w-80 mt-6 flex flex-col gap-3.5">
+          {/* fields, wrapped in a form so pressing enter submits */}
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSubmit();
+            }}
+            className="w-80 mt-6 flex flex-col gap-3.5"
+          >
             {/* username only shows when registering */}
             {mode === "register" && (
               <div>
@@ -139,7 +146,7 @@ function AuthForm() {
 
             {/* submit */}
             <button
-              onClick={handleSubmit}
+              type="submit"
               className="h-[42px] bg-[#2b2b2b] text-white font-semibold text-sm rounded-md mt-1 hover:bg-black transition"
             >
               {mode === "register" ? "Create account" : "Log in"}
@@ -181,7 +188,7 @@ function AuthForm() {
                 {message}
               </div>
             )}
-          </div>
+          </form>
         </div>
       </div>
     </div>
