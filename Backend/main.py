@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routers import auth
+from routers import games
 
 app = FastAPI()
 
@@ -14,3 +15,5 @@ app.add_middleware(
 
 # Include the authentication routes 
 app.include_router(auth.router)
+# Include the games routes
+app.include_router(games.router)
