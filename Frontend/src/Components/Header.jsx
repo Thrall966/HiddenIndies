@@ -1,6 +1,15 @@
-import { NavLink, Link } from "react-router-dom";
+import { NavLink, Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../AuthContext";
+
 
 function Header() {
+  const { username, logout } = useAuth();
+  const navigate = useNavigate();
+
+  function handleLogout() {
+    logout();
+    navigate("/browse");
+  }
   // shared styling for each nav link, with a gold underline when active
   function navClass({ isActive }) {
     return isActive
@@ -36,13 +45,27 @@ function Header() {
           My Lists
         </NavLink>
 
-        {/* auth link, will become a profile menu once login state is stored */}
-        <Link
-          to="/login"
-          className="ml-2 px-3 py-1.5 rounded-md bg-[#2b2b2b] text-white text-xs font-semibold"
-        >
-          Log in
-        </Link>
+        {/* show username and logout when logged in, otherwise a login link */}
+        {username ? (
+          <div className="ml-2 flex items-center gap-3">
+            <span className="text-sm text-[#2b2b2b] font-semibold">
+              {username}
+            </span>
+            <button
+              onClick={handleLogout}
+              className="text-xs text-[#6b6b63] underline"
+            >
+              Log out
+            </button>
+          </div>
+        ) : (
+          <Link
+            to="/login"
+            className="ml-2 px-3 py-1.5 rounded-md bg-[#2b2b2b] text-white text-xs font-semibold"
+          >
+            Log in
+          </Link>
+        )}
       </div>
     </div>
   );

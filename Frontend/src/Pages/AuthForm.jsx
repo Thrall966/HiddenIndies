@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "../AuthContext";
 
 function AuthForm() {
   // which tab is active register or login
   const navigate = useNavigate();
+  const { login } = useAuth();
   const location = useLocation();
   const [mode, setMode] = useState(location.pathname === "/login" ? "login" : "register");
 
@@ -48,9 +50,8 @@ function AuthForm() {
         if (mode === "register") {
           setMessage(data.message);
         } else {
-          // store the token and username so the app knows who is logged in
-          localStorage.setItem("token", data.access_token);
-          localStorage.setItem("username", data.username);
+          // update shared auth state, this also storing to localStorage
+          login(data.access_token, data.username);
           navigate("/browse");
         }
       } else {
