@@ -21,6 +21,7 @@ function AuthForm() {
     setMode(newMode);
     setMessage("");
     setIsError(false);
+    navigate(newMode === "login" ? "/login" : "/register");
   }
 
   // sends the form to the backend, /register or /login depending on mode
