@@ -40,3 +40,29 @@ class Game:
         if row is None:
             return None
         return Game(row[0], row[1], row[2], row[3], row[4], row[5], row[6])
+
+    @staticmethod
+    def recompute_rating(game_id):
+        # recalculate a game's average rating and review count from its reviews, then store them
+        connection = get_db_connection()
+        cursor = connection.cursor()
+
+        # ask the database for the average rating and number of reviews for this game
+        cursor.execute(
+            "SELECT AVG(rating), COUNT(*) FROM reviews WHERE game_id = %s",
+            (game_id,),
+        )
+        average, count = cursor.fetchone()
+
+        # if there are no reviews yet, average comes back as None, so treat it as 0
+        if average is None:
+            average = 0
+
+        # store the new values back onto the game row
+        cursor.execute(
+            "UPDATE games SET average_rating = %s, review_count = %s WHERE game_id = %s",
+            (average, count, game_id),
+        )
+        connection.commit()
+        cursor.close()
+        connection.close()

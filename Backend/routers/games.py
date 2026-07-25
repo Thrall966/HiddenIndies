@@ -73,4 +73,7 @@ def create_review(game_id: int, payload: ReviewRequest, user_email: str = Depend
     review = Review(user.user_id, game_id, payload.rating, payload.review_text)
     review.save()
 
+    # update the games average rating and review count
+    Game.recompute_rating(game_id)
+
     return {"message": "Review submitted."}
