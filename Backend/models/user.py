@@ -5,10 +5,12 @@ from database import get_db_connection
 
 class UserAccount:
     # Constructor to create a new user account object
-    def __init__(self, username, email, password_hash):
+    def __init__(self, username, email, password_hash, user_id=None, role=None):
         self.username = username
         self.email = email
         self.password_hash = password_hash
+        self.user_id = user_id
+        self.role = role
 
 
 
@@ -28,14 +30,14 @@ class UserAccount:
         # Open a connection and ask the database if this email exists
         connection = get_db_connection()
         cursor = connection.cursor()
-        cursor.execute("SELECT username, email, password_hash FROM users WHERE email = %s", (email,))
+        cursor.execute("SELECT username, email, password_hash, user_id, role FROM users WHERE email = %s", (email,))
         row = cursor.fetchone()
         cursor.close()
         connection.close()
         if row is None:
             return None
         # Build a UserAccount object from the database row
-        return UserAccount(username=row[0], email=row[1], password_hash=row[2])
+        return UserAccount(username=row[0], email=row[1], password_hash=row[2], user_id=row[3], role=row[4])
 
 
     

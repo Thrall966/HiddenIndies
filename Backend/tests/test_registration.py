@@ -17,7 +17,7 @@ client = TestClient(app)
 def clean_test_database():
     connection = get_db_connection()
     cursor = connection.cursor()
-    cursor.execute("TRUNCATE TABLE users RESTART IDENTITY;")
+    cursor.execute("TRUNCATE TABLE reviews, users RESTART IDENTITY CASCADE;")
     connection.commit()
     cursor.close()
     connection.close()
