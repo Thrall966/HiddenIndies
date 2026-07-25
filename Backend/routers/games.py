@@ -47,6 +47,25 @@ def get_game(game_id: int):
         "review_count": game.review_count,
     }
 
+# returns all reviews for a single game
+@router.get("/games/{game_id}/reviews")
+def get_reviews(game_id: int):
+    reviews = Review.get_for_game(game_id)
+
+    # turn each Review object into a plain dictionary for json
+    result = []
+    for review in reviews:
+        result.append({
+            "review_id": review.review_id,
+            "username": review.username,
+            "rating": review.rating,
+            "review_text": review.review_text,
+            "created_at": str(review.created_at),
+        })
+    return result
+
+
+
 # shape of the data the review form sends
 class ReviewRequest(BaseModel):
     rating: int

@@ -6,6 +6,7 @@ function GameDetail() {
   const { gameId } = useParams();
 
   const [game, setGame] = useState(null);
+  const [reviews, setReviews] = useState([]);
 
   // fetch this one game when the page loads
   useEffect(() => {
@@ -14,7 +15,13 @@ function GameDetail() {
       const data = await response.json();
       setGame(data);
     }
+    async function loadReviews() {
+      const response = await fetch("http://localhost:8000/games/" + gameId + "/reviews");
+      const data = await response.json();
+      setReviews(data);
+    }
     loadGame();
+    loadReviews();
   }, [gameId]);
 
   // while the game is still loading, show nothing yet
@@ -42,12 +49,36 @@ function GameDetail() {
         <span className="text-[#a8a8a0]">{game.review_count} reviews</span>
       </div>
 
-      {/* reviews section, empty until we build the review feature */}
+      {/* reviews section */}
       <div className="mt-8 border-t border-[#e6e6e0] pt-6">
-        <h3 className="text-sm font-semibold text-[#2b2b2b]">Reviews</h3>
-        <p className="text-xs text-[#a8a8a0] mt-2">
-          no reviews yet
-        </p>
+        <h3 className="text-sm font-semibold text-[#2b2b2b] mb-4">
+          Reviews ({reviews.length})
+        </h3>
+
+        {reviews.length === 0 ? (
+          <p className="text-xs text-[#a8a8a0]">no reviews yet</p>
+        ) : (
+          <div className="flex flex-col gap-4">
+            {reviews.map((review) => (
+              <div
+                key={review.review_id}
+                className="bg-white border border-[#e6e6e0] rounded-lg p-4"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-semibold text-[#2b2b2b]">
+                    {review.username}
+                  </span>
+                  <span className="text-xs text-[#6b6b63]">
+                    ★ {review.rating}/10
+                  </span>
+                </div>
+                <p className="text-xs text-[#6b6b63] mt-2">
+                  {review.review_text}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
