@@ -4,6 +4,7 @@ from models.review import Review
 from models.user import UserAccount
 from auth_utils import get_current_user
 from pydantic import BaseModel
+import psycopg2
 
 router = APIRouter()
 
@@ -69,9 +70,13 @@ def create_review(game_id: int, payload: ReviewRequest, user_email: str = Depend
     if user is None:
         raise HTTPException(status_code=401, detail="User not found.")
 
-    # create and save the review
+    # create and save the review, catch if user already has a review for this game
     review = Review(user.user_id, game_id, payload.rating, payload.review_text)
-    review.save()
+    try:
+        review.save()
+    except psycopg2.errors.UniqueViolation:
+        raise HTTPException(status_code=409, detail="You have already submitted a review for this game.")
+    
 
     # update the games average rating and review count
     Game.recompute_rating(game_id)

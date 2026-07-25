@@ -16,14 +16,16 @@ class Review:
         # inserting review into the database
         connection = get_db_connection()
         cursor = connection.cursor()
-        cursor.execute(
-            "INSERT INTO reviews (user_id, game_id, rating, review_text) VALUES (%s, %s, %s, %s) RETURNING review_id",
-            (self.user_id, self.game_id, self.rating, self.review_text),
-        )
-        self.review_id = cursor.fetchone()[0]
-        connection.commit()
-        cursor.close()
-        connection.close()
+        try:
+            cursor.execute(
+                "INSERT INTO reviews (user_id, game_id, rating, review_text) VALUES (%s, %s, %s, %s) RETURNING review_id",
+                (self.user_id, self.game_id, self.rating, self.review_text),
+            )
+            self.review_id = cursor.fetchone()[0]
+            connection.commit()
+        finally:
+            cursor.close()
+            connection.close()
         return self
 
     @staticmethod
