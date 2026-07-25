@@ -27,3 +27,16 @@ class Game:
         for row in rows:
             games.append(Game(row[0], row[1], row[2], row[3], row[4], row[5], row[6]))
         return games
+    @staticmethod
+    def find_by_id(game_id):
+        # fetch a single game by its id, return a Game object or None
+        connection = get_db_connection()
+        cursor = connection.cursor()
+        cursor.execute("SELECT game_id, title, developer, release_year, description, average_rating, review_count FROM games WHERE game_id = %s", (game_id,))
+        row = cursor.fetchone()
+        cursor.close()
+        connection.close()
+
+        if row is None:
+            return None
+        return Game(row[0], row[1], row[2], row[3], row[4], row[5], row[6])

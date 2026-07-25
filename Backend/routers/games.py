@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter , HTTPException
 from models.game import Game
 
 router = APIRouter()
@@ -22,3 +22,22 @@ def get_games():
             "review_count": game.review_count,
         })
     return result
+
+# view game details controller, returns a single game by its id
+@router.get("/games/{game_id}")
+def get_game(game_id: int):
+    game = Game.find_by_id(game_id)
+
+    # if no game with that id exists, return a 404
+    if game is None:
+        raise HTTPException(status_code=404, detail="Game not found.")
+
+    return {
+        "game_id": game.game_id,
+        "title": game.title,
+        "developer": game.developer,
+        "release_year": game.release_year,
+        "description": game.description,
+        "average_rating": float(game.average_rating),
+        "review_count": game.review_count,
+    }
