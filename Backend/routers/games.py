@@ -1,5 +1,9 @@
-from fastapi import APIRouter , HTTPException
+from fastapi import APIRouter , HTTPException, Depends
 from models.game import Game
+from models.review import Review
+from models.user import UserAccount
+from auth_utils import get_current_user
+from pydantic import BaseModel
 
 router = APIRouter()
 
@@ -41,3 +45,32 @@ def get_game(game_id: int):
         "average_rating": float(game.average_rating),
         "review_count": game.review_count,
     }
+
+# shape of the data the review form sends
+class ReviewRequest(BaseModel):
+    rating: int
+    review_text: str
+
+
+# write review controller, protected so only logged-in users can post
+@router.post("/games/{game_id}/reviews")
+def create_review(game_id: int, payload: ReviewRequest, user_email: str = Depends(get_current_user)):
+    # verify the game exists
+    game = Game.find_by_id(game_id)
+    if game is None:
+        raise HTTPException(status_code=404, detail="Game not found.")
+
+    # validate the rating range
+    if payload.rating < 1 or payload.rating > 10:
+        raise HTTPException(status_code=400, detail="Rating must be between 1 and 10.")
+
+    # find out who the logged-in user is
+    user = UserAccount.find_by_email(user_email)
+    if user is None:
+        raise HTTPException(status_code=401, detail="User not found.")
+
+    # create and save the review
+    review = Review(user.user_id, game_id, payload.rating, payload.review_text)
+    review.save()
+
+    return {"message": "Review submitted."}
