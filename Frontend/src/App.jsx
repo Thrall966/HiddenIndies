@@ -4,6 +4,7 @@ import AuthForm from "./pages/AuthForm";
 import Discover from "./pages/Discover";
 import Browse from "./pages/Browse";
 import MyLists from "./pages/MyLists";
+import GameDetail from "./pages/GameDetail";
 
 // every page sits inside the same shell, so the header is always present
 function Layout({ children }) {
@@ -24,6 +25,7 @@ function App() {
           <Route path="/" element={<Browse />} />
           <Route path="/browse" element={<Browse />} />
           <Route path="/discover" element={<Discover />} />
+          <Route path="/game/:gameId" element={<GameDetail />} />
 
           {/* logging in is only needed for personal features */}
           <Route path="/lists" element={<MyLists />} />

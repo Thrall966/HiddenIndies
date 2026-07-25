@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 
 function Browse() {
   // holds the list of games once fetched
@@ -20,9 +21,10 @@ function Browse() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {games.map((game) => (
-          <div
+          <Link
             key={game.game_id}
-            className="bg-white border border-[#e6e6e0] rounded-lg p-4"
+            to={"/game/" + game.game_id}
+            className="bg-white border border-[#e6e6e0] rounded-lg p-4 block hover:border-[#b8902f] transition"
           >
             <div className="font-semibold text-[#2b2b2b]">{game.title}</div>
             <div className="text-xs text-[#7a7a72] mt-0.5">
@@ -44,7 +46,7 @@ function Browse() {
                 {game.review_count} reviews
               </span>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </div>
