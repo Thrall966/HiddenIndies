@@ -2,6 +2,7 @@ from fastapi import APIRouter , HTTPException, Depends
 from models.game import Game
 from models.review import Review
 from models.user import UserAccount
+from models.discovery import DiscoveryEngine
 from auth_utils import get_current_user
 from pydantic import BaseModel
 import psycopg2
@@ -64,6 +65,11 @@ def get_reviews(game_id: int):
         })
     return result
 
+
+# discover controller, returns games ranked by their gem score
+@router.get("/discover")
+def discover():
+    return DiscoveryEngine.get_ranked_games()
 
 
 # shape of the data the review form sends
