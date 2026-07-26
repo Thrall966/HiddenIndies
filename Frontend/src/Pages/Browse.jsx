@@ -1,19 +1,25 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 
 function Browse() {
   // holds the list of games once fetched
   const [games, setGames] = useState([]);
+  const [searchParams] = useSearchParams();
+  const search = searchParams.get("search") || "";
 
   // runs once when the page loads, fetches the games
   useEffect(() => {
     async function loadGames() {
-      const response = await fetch("http://localhost:8000/games");
+      // include the search term in the request if there is one
+      const url = search
+      ? "http://localhost:8000/games?search=" + encodeURIComponent(search)
+      : "http://localhost:8000/games";
+      const response = await fetch(url);
       const data = await response.json();
       setGames(data);
     }
     loadGames();
-  }, []);
+  }, [search]);
 
   return (
     <div className="p-8">

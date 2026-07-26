@@ -1,10 +1,21 @@
 import { NavLink, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../AuthContext";
+import {useState} from "react";
 
 
 function Header() {
   const { username, logout } = useAuth();
   const navigate = useNavigate();
+
+
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // on enter, go to browse with the search term in the url
+  function handleSearch(e) {
+    if (e.key === "Enter" && searchTerm.trim()) {
+      navigate("/browse?search=" + encodeURIComponent(searchTerm.trim()));
+    }
+  }
 
   function handleLogout() {
     logout();
@@ -24,11 +35,14 @@ function Header() {
         HiddenIndies
       </Link>
 
-      {/* search box, not wired up yet */}
+      {/* search box */}
       <div className="flex-1 max-w-[340px] h-8 rounded-2xl border-[1.5px] border-[#d8d8d0] flex items-center px-3.5 gap-2">
         <span className="text-[#bdbdb4] text-xs">⌕</span>
         <input
           placeholder="search games..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          onKeyDown={handleSearch}
           className="flex-1 text-xs font-mono text-[#6b6b63] placeholder-[#bdbdb4] outline-none bg-transparent"
         />
       </div>
