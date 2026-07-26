@@ -12,8 +12,12 @@ router = APIRouter()
 
 # browse controller, returns all games in the catalogue
 @router.get("/games")
-def get_games():
-    games = Game.get_all()
+def get_games(search: str = ""):
+    # filter by search term given otherwise return all games
+    if search:
+        games = Game.search(search)
+    else:
+        games = Game.get_all()
 
     # turn each Game object into a plain dictionary the frontend can read as json
     result = []

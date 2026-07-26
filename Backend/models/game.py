@@ -54,7 +54,7 @@ class Game:
         )
         average, count = cursor.fetchone()
 
-        # if there are no reviews yet, average comes back as None, so treat it as 0
+        # if there are no reviews yet, average comes back as none, so treat it as 0
         if average is None:
             average = 0
 
@@ -66,3 +66,21 @@ class Game:
         connection.commit()
         cursor.close()
         connection.close()
+
+
+    @staticmethod
+    def search(term):
+        # find games whose title matches the search term, case insensitive
+        connection = get_db_connection()
+        cursor = connection.cursor()
+        cursor.execute(
+            "SELECT game_id, title, developer, release_year, description, average_rating, review_count FROM games WHERE title ILIKE %s ORDER BY title",
+            ("%" + term + "%",),
+        )
+        rows = cursor.fetchall()
+        cursor.close()
+        connection.close()
+        games = []
+        for row in rows:
+            games.append(Game(row[0], row[1], row[2], row[3], row[4], row[5], row[6]))
+        return games
