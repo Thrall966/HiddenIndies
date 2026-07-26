@@ -60,4 +60,29 @@ class UserAccount:
         self.user_id = new_id
         return self
 
+
+    @staticmethod
+    def delete_account(user_id):
+        # anonymise the user's reviews, then delete their account
+        connection = get_db_connection()
+        cursor = connection.cursor()
+        try:
+            # find the placeholder deleted user account
+            cursor.execute("SELECT user_id FROM users WHERE username = %s", ("[deleted]",))
+            placeholder = cursor.fetchone()
+            placeholder_id = placeholder[0]
+
+            # reassign this user's reviews to the placeholder and blank the text, and keep ratings intact for referential integrity and aggregate scores
+            cursor.execute(
+                "UPDATE reviews SET user_id = %s, review_text = %s WHERE user_id = %s",
+                (placeholder_id, "", user_id),
+            )
+
+            # delete the user's account
+            cursor.execute("DELETE FROM users WHERE user_id = %s", (user_id,))
+            connection.commit()
+
+        finally:
+            cursor.close()
+            connection.close()
     

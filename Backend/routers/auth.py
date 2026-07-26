@@ -1,7 +1,7 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from models.user import UserAccount
-from auth_utils import create_access_token
+from auth_utils import create_access_token, get_current_user
 
 
 # Router groups related endpoints, main.py will include this router
@@ -66,3 +66,16 @@ def login(payload: LoginRequest):
         "token_type": "bearer",
         "username": user.username,
     }
+
+
+@router.delete("/account")
+def delete_account(user_email: str = Depends(get_current_user)):
+    # Identifdy the logged in user
+    user = UserAccount.find_by_email(user_email)
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found.")
+
+    # Anonymise their reviews and delete the account
+    UserAccount.delete_account(user.user_id)
+
+    return {"message": "Account deleted."}
