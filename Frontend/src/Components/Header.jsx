@@ -62,9 +62,9 @@ function Header() {
         {/* show username and logout when logged in, otherwise a login link */}
         {username ? (
           <div className="ml-2 flex items-center gap-3">
-            <span className="text-sm text-[#2b2b2b] font-semibold">
+            <Link to="/profile" className="text-sm text-[#2b2b2b] font-semibold">
               {username}
-            </span>
+            </Link>
             <button
               onClick={handleLogout}
               className="text-xs text-[#6b6b63] underline"
