@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../AuthContext";
 
@@ -8,6 +8,24 @@ function Profile() {
 
   const [confirming, setConfirming] = useState(false);
   const [message, setMessage] = useState("");
+  const [reviews, setReviews] = useState([]);
+
+// fetch the logged in user's own reviews when the page loads
+useEffect(() => {
+    async function loadMyReviews() {
+        const token = localStorage.getItem("token");
+        const response = await fetch("http://localhost:8000/my-reviews", {
+            headers: { Authorization: "Bearer " + token },
+        });
+        if (response.ok) {
+            setReviews(await response.json());
+        }
+        
+    }
+    loadMyReviews();
+}, []);
+
+
 
   // call the protected delete-account endpoint
   async function deleteAccount() {
@@ -39,7 +57,37 @@ function Profile() {
         <div className="text-sm text-[#2b2b2b] mt-1">{username}</div>
       </div>
 
-      {/* danger zone, delete account */}
+      {/* the user's reviews */}
+      <div className="bg-white border border-[#e6e6e0] rounded-lg p-5 mb-6">
+        <div className="text-xs font-mono text-[#9a9a90] mb-3">MY REVIEWS</div>
+
+        {reviews.length === 0 ? (
+            <p className="text-xs text-[#a8a8a0]">you have not written any reviews yet</p>
+        ) : (
+        <div className="flex flex-col gap-3">
+            {reviews.map((review)  => (
+              <div
+              key={review.review_id}
+              className="border border-[#e6e6e0] rounded-md p-3"
+              >
+                <div className="flex items-center justify-between">
+                    <span className="text-sm font-semibold text-[#2b2b2b]">
+                        {review.game_title}
+                    </span>
+                    <span className="text-xs text-[#6b6b63]">
+                       ★ {review.rating}/10
+                       </span>
+                    </div>
+                    <p className="text-xs text-[#6b6b63] mt-1">{review.review_text}</p>
+                    </div>
+            ))}
+            </div>
+        )}
+        </div>
+                       
+        
+
+      {/* delete account */}
       <div className="bg-white border border-[#e6e6e0] rounded-lg p-5">
         <div className="text-sm font-semibold text-[#c0392b] mb-1">
           Delete account
