@@ -141,3 +141,25 @@ def delete_review(review_id: int, user_email: str = Depends(get_current_user)):
     Game.recompute_rating(game_id)
 
     return {"message": "Review deleted."}
+
+
+# edit one of the logged in users own reviews
+@router.put("/reviews/{review_id}")
+def update_review(review_id: int, payload: ReviewRequest, user_email: str = Depends(get_current_user)):
+    user = UserAccount.find_by_email(user_email)
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found.")
+
+    # validate the rating range
+    if payload.rating < 1 or payload.rating > 10:
+        raise HTTPException(status_code=400, detail="Rating must be between 1 and 10.")
+
+    # update only if it belongs to this user, returns the game_id or None
+    game_id = Review.update(review_id, user.user_id, payload.rating, payload.review_text)
+    if game_id is None:
+        raise HTTPException(status_code=404, detail="Review not found.")
+
+    # Rating changes, recompute the game's cahced rating
+    Game.recompute_rating(game_id)
+
+    return {"message": "Review Updated."}

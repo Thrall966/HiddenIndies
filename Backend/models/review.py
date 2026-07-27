@@ -99,3 +99,21 @@ class Review:
         finally:
             cursor.close()
             connection.close()
+
+
+    @staticmethod
+    def update(review_id, user_id, rating, review_text):
+        # update a review only if it belongs to this user
+        connection = get_db_connection()
+        cursor = connection.cursor()
+        try:
+            cursor.execute(
+                "UPDATE reviews SET rating = %s, review_text = %s WHERE review_id = %s AND user_id = %s RETURNING game_id",
+                (rating, review_text, review_id, user_id),
+            )
+            row = cursor.fetchone()
+            connection.commit()
+            return row[0] if row else None
+        finally:
+            cursor.close()
+            connection.close()
