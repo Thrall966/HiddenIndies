@@ -47,6 +47,19 @@ useEffect(() => {
       setMessage("Could not reach the server.");
     }
   }
+  // delete one of the user's reviews
+ async function deleteReview(reviewId) {
+    const token = localStorage.getItem("token");
+    const response = await fetch("http://localhost:8000/reviews/" + reviewId, {
+        method: "DELETE",
+        headers: { Authorization: "Bearer " + token },
+    });
+    if (response.ok) {
+        // remove the deleted review from the list
+        setReviews(reviews.filter((r) => r.review_id !== reviewId));
+    }
+}
+
 
   return (
     <div className="p-8 max-w-2xl">
@@ -79,6 +92,12 @@ useEffect(() => {
                        </span>
                     </div>
                     <p className="text-xs text-[#6b6b63] mt-1">{review.review_text}</p>
+                    <button
+                    onClick={() => deleteReview(review.review_id)}
+                    className="text-xs text-[#c0392b] mt-2 hover:underline"
+                    >
+                        Delete
+                    </button>
                     </div>
             ))}
             </div>
