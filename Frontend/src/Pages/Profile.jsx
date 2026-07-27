@@ -5,7 +5,9 @@ import { useAuth } from "../AuthContext";
 function Profile() {
   const { username, logout } = useAuth();
   const navigate = useNavigate();
-
+  const [editingId, setEditingId] = useState(null);
+  const [editRating, setEditRating] = useState("");
+  const [editText, setEditText] = useState("");
   const [confirming, setConfirming] = useState(false);
   const [message, setMessage] = useState("");
   const [reviews, setReviews] = useState([]);
@@ -59,6 +61,41 @@ useEffect(() => {
         setReviews(reviews.filter((r) => r.review_id !== reviewId));
     }
 }
+  // start editing a review, filling form with its current values
+  function startEdit(review) {
+    setEditingId(review.review_id);
+    setEditRating(String(review.rating));
+    setEditText(review.review_text);
+  }
+
+   // save the edited review
+   async function saveEdit(reviewId) {
+    const token = localStorage.getItem("token");
+    const response = await fetch("http://localhost:8000/reviews/" + reviewId, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + token,
+    },
+    body: JSON. stringify({
+        rating: Number(editRating),
+        review_text: editText,
+    }),
+   });
+   if (response.ok) {
+    // update the review in the list with the new values
+    setReviews(
+        reviews.map((r) =>
+            r.review_id === reviewId
+             ? { ...r, rating: Number(editRating), review_text: editText }
+             :r
+    )
+);
+// leave edit mode
+setEditingId(null);
+   }
+}
+
 
 
   return (
@@ -80,25 +117,72 @@ useEffect(() => {
         <div className="flex flex-col gap-3">
             {reviews.map((review)  => (
               <div
-              key={review.review_id}
-              className="border border-[#e6e6e0] rounded-md p-3"
+                key={review.review_id}
+                className="border border-[#e6e6e0] rounded-md p-3"
               >
-                <div className="flex items-center justify-between">
-                    <span className="text-sm font-semibold text-[#2b2b2b]">
+                {editingId === review.review_id ? (
+                  // edit mode, show the form
+                  <div className="flex flex-col gap-2">
+                    <div className="text-sm font-semibold text-[#2b2b2b]">
+                      {review.game_title}
+                    </div>
+                    <input
+                      type="number"
+                      min="1"
+                      max="10"
+                      value={editRating}
+                      onChange={(e) => setEditRating(e.target.value)}
+                      className="w-20 h-[34px] border-[1.5px] border-[#d8d8d0] rounded-md px-3 text-sm outline-none focus:border-[#2b2b2b]"
+                    />
+                    <textarea
+                      value={editText}
+                      onChange={(e) => setEditText(e.target.value)}
+                      className="border-[1.5px] border-[#d8d8d0] rounded-md px-3 py-2 text-sm outline-none focus:border-[#2b2b2b] min-h-[60px]"
+                    />
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => saveEdit(review.review_id)}
+                        className="text-xs px-3 py-1.5 bg-[#2b2b2b] text-white rounded-md"
+                      >
+                        Save
+                      </button>
+                      <button
+                        onClick={() => setEditingId(null)}
+                        className="text-xs px-3 py-1.5 border border-[#d8d8d0] text-[#6b6b63] rounded-md"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  // normal mode, show the review
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-semibold text-[#2b2b2b]">
                         {review.game_title}
-                    </span>
-                    <span className="text-xs text-[#6b6b63]">
-                       ★ {review.rating}/10
-                       </span>
+                      </span>
+                      <span className="text-xs text-[#6b6b63]">
+                        ★ {review.rating}/10
+                      </span>
                     </div>
                     <p className="text-xs text-[#6b6b63] mt-1">{review.review_text}</p>
-                    <button
-                    onClick={() => deleteReview(review.review_id)}
-                    className="text-xs text-[#c0392b] mt-2 hover:underline"
-                    >
+                    <div className="flex gap-3 mt-2">
+                      <button
+                        onClick={() => startEdit(review)}
+                        className="text-xs text-[#2b2b2b] hover:underline"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => deleteReview(review.review_id)}
+                        className="text-xs text-[#c0392b] hover:underline"
+                      >
                         Delete
-                    </button>
+                      </button>
                     </div>
+                  </div>
+                )}
+              </div>
             ))}
             </div>
         )}
