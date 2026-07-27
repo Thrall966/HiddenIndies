@@ -30,7 +30,7 @@ class UserAccount:
         # Open a connection and ask the database if this email exists
         connection = get_db_connection()
         cursor = connection.cursor()
-        cursor.execute("SELECT username, email, password_hash, user_id, role FROM users WHERE email = %s", (email,))
+        cursor.execute("SELECT username, email, password_hash, user_id, role FROM users WHERE email = %s AND is_deleted = FALSE", (email,)) #updated query to exclude deleted accounts
         row = cursor.fetchone()
         cursor.close()
         connection.close()
@@ -63,23 +63,21 @@ class UserAccount:
 
     @staticmethod
     def delete_account(user_id):
-        # anonymise the user's reviews, then delete their account
+        #  soft delete anonymise the user information, and blank review text
+        #  keep reviews attached to their original ID so that our one review per user constraint stays intact
         connection = get_db_connection()
         cursor = connection.cursor()
         try:
-            # find the placeholder deleted user account
-            cursor.execute("SELECT user_id FROM users WHERE username = %s", ("[deleted]",))
-            placeholder = cursor.fetchone()
-            placeholder_id = placeholder[0]
-
-            # reassign this user's reviews to the placeholder and blank the text, and keep ratings intact for referential integrity and aggregate scores
-            cursor.execute(
-                "UPDATE reviews SET user_id = %s, review_text = %s WHERE user_id = %s",
-                (placeholder_id, "", user_id),
+            # blank the text of this user's reviews, keeping ratings and ownership
+            cursor.execute("UPDATE reviews SET review_text = %s WHERE user_id = %s", ("", user_id), 
             )
 
-            # delete the user's account
-            cursor.execute("DELETE FROM users WHERE user_id = %s", (user_id,))
+            # anonymise the user's own record, removing personal data and blocking login
+            cursor.execute(
+                "UPDATE users SET username = %s, email = %s, password_hash = %s, is_deleted = TRUE, deleted_at = CURRENT_TIMESTAMP WHERE user_id = %s",
+                ("deleted_user_" + str(user_id), None, None, user_id),
+            )
+
             connection.commit()
 
         finally:

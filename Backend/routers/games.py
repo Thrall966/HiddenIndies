@@ -60,9 +60,10 @@ def get_reviews(game_id: int):
     # turn each Review object into a plain dictionary for json
     result = []
     for review in reviews:
+        display_name = "[deleted user]" if review.username.startswith("deleted_user_") else review.username #show a label for anonymised accounts instead of the internal name
         result.append({
             "review_id": review.review_id,
-            "username": review.username,
+            "username": display_name,
             "rating": review.rating,
             "review_text": review.review_text,
             "created_at": str(review.created_at),
