@@ -55,3 +55,47 @@ class Review:
                 username=row[6],
             ))
         return reviews
+
+    @staticmethod
+    def get_for_user(user_id):
+        # fetch all reviews writtenn by one user, with the game title for display
+        connection = get_db_connection()
+        cursor = connection.cursor()
+        cursor.execute(
+            "SELECT reviews.review_id, reviews.game_id, reviews.rating, reviews.review_text, reviews.created_at, games.title "
+            "FROM reviews JOIN games ON reviews.game_id = games.game_id "
+            "WHERE reviews.user_id = %s ORDER BY reviews.created_at DESC",
+            (user_id,),
+        )
+        rows = cursor.fetchall()
+        cursor.close()
+        connection.close()
+
+        reviews = []
+        for row in rows:
+            reviews.append({
+                "review_id": row[0],
+                "game_id": row[1],
+                "rating": row[2],
+                "review_text": row[3],
+                "created_at": str(row[4]),
+                "game_title": row[5],
+            })
+        return reviews
+
+    @staticmethod
+    def delete(review_id, user_id):
+        # delete a review only if it belongs to this user
+        connection = get_db_connection()
+        cursor = connection.cursor()
+        try:
+            cursor.execute(
+                "DELETE FROM reviews WHERE review_id = %s AND user_id = %s RETURNING game_id",
+                (review_id, user_id),
+            )
+            row = cursor.fetchone()
+            connection.commit()
+            return row[0] if row else None
+        finally:
+            cursor.close()
+            connection.close()

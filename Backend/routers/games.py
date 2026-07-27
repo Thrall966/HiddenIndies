@@ -112,3 +112,32 @@ def create_review(game_id: int, payload: ReviewRequest, user_email: str = Depend
     Game.recompute_rating(game_id)
 
     return {"message": "Review submitted."}
+
+
+
+# returns the logged in users own review
+@router.get("/my-reviews")
+def get_my_reviews(user_email: str = Depends(get_current_user)):
+    user = UserAccount.find_by_email(user_email)
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found.")
+
+    return Review.get_for_user(user.user_id)
+
+
+# Delete one of the logged in users own reviews
+@router.delete("/reviews/{review_id}")
+def delete_review(review_id: int, user_email: str = Depends(get_current_user)):
+    user = UserAccount.find_by_email(user_email)
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found.")
+
+    # delete only if it belongs to this user, returns the game_id or None
+    game_id = Review.delete(review_id, user.user_id)
+    if game_id is None:
+        raise HTTPException(status_code=404, detail="Review not found.")
+
+    # recompute game cached rating
+    Game.recompute_rating(game_id)
+
+    return {"message": "Review deleted."}
