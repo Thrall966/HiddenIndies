@@ -84,3 +84,59 @@ class Game:
         for row in rows:
             games.append(Game(row[0], row[1], row[2], row[3], row[4], row[5], row[6]))
         return games
+
+
+    @staticmethod
+    def create(title, developer, release_year, description):
+        # insert a new game, return its new id
+        connection = get_db_connection()
+        cursor = connection.cursor()
+        try:
+            cursor.execute(
+                "INSERT INTO games (title, developer, release_year, description) VALUES (%s, %s, %s, %s) RETURNING game_id",
+                (title, developer, release_year, description),
+            )
+            new_id = cursor.fetchone()[0]
+            connection.commit()
+            return new_id
+        finally:
+            cursor.close()
+            connection.close()
+
+
+
+    @staticmethod
+    def update(game_id, title, developer, release_year, description):
+        # update to an existing game, return the game_id or None if it did not exist
+        connection = get_db_connection()
+        cursor = connection.cursor()
+        try:
+            cursor.execute(
+                "UPDATE games SET title = %s, developer = %s, release_year = %s, description = %s WHERE game_id = %s RETURNING game_id",
+                (title, developer, release_year, description, game_id),
+            )
+            row = cursor.fetchone()
+            connection.commit()
+            return row[0] if row else None
+        finally:
+            cursor.close()
+            connection.close()
+
+
+
+    @staticmethod
+    def delete(game_id):
+        # delete a game, reutn the game_id or None if it did not exist
+        connection = get_db_connection()
+        cursor = connection.cursor()
+        try:
+            cursor.execute(
+                "DELETE FROM games WHERE game_id = %s RETURNING game_id",
+                (game_id,),
+            )
+            row = cursor.fetchone()
+            connection.commit()
+            return row[0] if row else None
+        finally:
+            cursor.close()
+            connection.close()

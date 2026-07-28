@@ -4,6 +4,7 @@ from jose import jwt, JWTError
 from dotenv import load_dotenv
 from fastapi import Depends, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from models.user import UserAccount
 
 load_dotenv()
 
@@ -38,3 +39,13 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
         return email
     except JWTError:
         raise HTTPException(status_code=401, detail="Invalid token.")
+
+
+# verifies the request is from an admin, rejects otherwise
+def get_current_admin(user_email: str = Depends(get_current_user)):
+    user = UserAccount.find_by_email(user_email)
+    if user is None:
+        raise HTTPException(status_code=401, detail="User not found.")
+    if user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required.")
+    return user

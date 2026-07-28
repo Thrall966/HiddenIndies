@@ -3,7 +3,7 @@ from models.game import Game
 from models.review import Review
 from models.user import UserAccount
 from models.discovery import DiscoveryEngine
-from auth_utils import get_current_user
+from auth_utils import get_current_user, get_current_admin
 from pydantic import BaseModel
 import psycopg2
 
@@ -163,3 +163,43 @@ def update_review(review_id: int, payload: ReviewRequest, user_email: str = Depe
     Game.recompute_rating(game_id)
 
     return {"message": "Review Updated."}
+
+
+# shape of the data the admin game form sens
+class GameRequest(BaseModel):
+    title: str
+    developer: str
+    release_year: int
+    description: str
+
+
+
+#admin: add a new game to the catalogue
+@router.post("/admin/games")
+def admin_create_game(payload: GameRequest, admin=Depends(get_current_admin)):
+    new_id = Game.create(payload.title, payload.developer, payload.release_year, payload.description)
+    return {"message": "Game created.", "game_id": new_id}
+
+
+
+# admin: edit an existing game
+@router.put("/admin/games/{game_id}")
+def admin_update_game(game_id: int, payload: GameRequest, admin=Depends(get_current_admin)):
+    updated = Game.update(game_id, payload.title, payload.developer, payload.release_year, payload.description)
+    if updated is None:
+        raise HTTPException(status_code=404, detail="Game not found.")
+    return {"message": "Game Updated."}
+
+
+
+
+#admin: delete a game
+@router.delete("/admin/games/{game_id}")
+def admin_delete_game(game_id: int, admin=Depends(get_current_admin)):
+    try:
+        deleted = Game.delete(game_id)
+    except psycopg2.errors.ForeignKeyViolation:
+        raise HTTPException(status_code=409, detail="Cannot delete a game that has reviews.")
+    if deleted is None:
+        raise HTTPException(status_code=404, detail="Game not found.")
+    return {"message": "Game deleted."}
