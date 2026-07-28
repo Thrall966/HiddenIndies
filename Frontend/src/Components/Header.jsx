@@ -4,7 +4,7 @@ import {useState} from "react";
 
 
 function Header() {
-  const { username, logout } = useAuth();
+  const { username, role, logout } = useAuth();
   const navigate = useNavigate();
 
 
@@ -58,6 +58,11 @@ function Header() {
         <NavLink to="/lists" className={navClass}>
           My Lists
         </NavLink>
+        {role === "admin" && (
+          <NavLink to="/admin" className={navClass}>
+            Admin
+          </NavLink>
+        )}
 
         {/* show username and logout when logged in, otherwise a login link */}
         {username ? (

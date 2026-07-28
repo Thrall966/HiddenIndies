@@ -65,6 +65,7 @@ def login(payload: LoginRequest):
         "access_token": token,
         "token_type": "bearer",
         "username": user.username,
+        "role": user.role,
     }
 
 

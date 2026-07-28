@@ -51,7 +51,7 @@ function AuthForm() {
           setMessage(data.message);
         } else {
           // update shared auth state, this also storing to localStorage
-          login(data.access_token, data.username);
+          login(data.access_token, data.username, data.role);
           navigate("/browse");
         }
       } else {

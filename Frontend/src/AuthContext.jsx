@@ -7,23 +7,28 @@ const AuthContext = createContext();
 export function AuthProvider({ children }) {
   // read any existing login from localStorage when the app first loads
   const [username, setUsername] = useState(localStorage.getItem("username"));
+  const [role, setRole] = useState(localStorage.getItem("role"));
 
   // called on successful login
-  function login(token, name) {
+  function login(token, name, userRole) {
     localStorage.setItem("token", token);
     localStorage.setItem("username", name);
+    localStorage.setItem("role", userRole);
     setUsername(name);
+    setRole(userRole);
   }
 
   // called on logout
   function logout() {
     localStorage.removeItem("token");
     localStorage.removeItem("username");
+    localStorage.removeItem("role");
     setUsername(null);
+    setRole(null);
   }
 
   return (
-    <AuthContext.Provider value={{ username, login, logout }}>
+    <AuthContext.Provider value={{ username, role, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
