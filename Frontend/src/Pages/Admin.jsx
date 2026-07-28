@@ -63,7 +63,25 @@ if (response.ok) {
     }
 
 
+   // delete a game via the admin endpoint
+   async function deleteGame(gameId) {
+    const token = localStorage.getItem("token");
+    const response = await fetch("http://localhost:8000/admin/games/" + gameId, {
+        method: "DELETE",
+        headers: { Authorization: "Bearer " + token },
+    });
     
+    if (response.ok) {
+        // remove it from the list
+        setGames(games.filter((g) => g.game_id !== gameId));
+        setMessage("Game deleted.");
+    } else {
+        const data = await response.json();
+        setMessage(data.detail || "Could not delete game.");
+    }
+}
+
+
 return (
 <div className="p-8 max-w-3xl">
     <h2 className="text-xl font-semibold text-[#2b2b2b] mb-6">Admin Manage Catalogue </h2>
@@ -109,6 +127,29 @@ return (
             )}
         </div>
     </div>
+    {/* list of games with delete*/}
+    <div className="bg-white border border-[#e6e6e0] rounded-lg p-5">
+        <div className="text-xs font-mono text-[#9a9a90] mb-3">ALL GAMES</div>
+        <div className="flex flex-col gap-2">
+            {games.map((game) => (
+                <div
+                key={game.game_id}
+                className="flex items-center justify-between border border-[#e6e6e0] rounded-md p-3"
+                >
+                    <div>
+                        <div className="text-sm font-semibold text-[#2b2b2b]">{game.title}</div>
+                        <div className="text-xs text-[#7a7a72]">{game.developer} · {game.release_year}</div>
+                        </div>
+                        <button
+                        onClick={() => deleteGame(game.game_id)}
+                        className="text-xs text-[#c0392b] hover:underline"
+                        >
+                            Delete
+                            </button>
+                            </div>
+            ))}
+            </div>
+            </div>
  </div>
 );
 }
