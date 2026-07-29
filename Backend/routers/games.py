@@ -3,6 +3,7 @@ from models.game import Game
 from models.review import Review
 from models.user import UserAccount
 from models.discovery import DiscoveryEngine
+from models.wishlist import Wishlist
 from auth_utils import get_current_user, get_current_admin
 from pydantic import BaseModel
 import psycopg2
@@ -203,3 +204,48 @@ def admin_delete_game(game_id: int, admin=Depends(get_current_admin)):
     if deleted is None:
         raise HTTPException(status_code=404, detail="Game not found.")
     return {"message": "Game deleted."}
+
+
+
+# add a game to the logged in user's wishlist
+@router.post("/wishlist/{game_id}")
+def add_to_wishlist(game_id: int, user_email: str = Depends(get_current_user)):
+    user = UserAccount.find_by_email(user_email)
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found.")
+
+
+    try:
+        Wishlist.add(user.user_id, game_id)
+    except psycopg2.errors.UniqueViolation:
+        raise HTTPException(status_code=409, detail="Game is already on your wishlist.")
+
+    return {"message": "Added to wishlist."}
+
+
+
+
+
+
+# remove a game from the logged in user's wishlist
+@router.delete("/wishlist/{game_id}")
+def remove_from_wishlist(game_id: int, user_email: str = Depends(get_current_user)):
+    user = UserAccount.find_by_email(user_email)
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found.")
+
+    removed = Wishlist.remove(user.user_id, game_id)
+    if removed is None:
+        raise HTTPException(status_code=404, detail="Game not on wishlist.")
+
+    return{"message": "Removed from wishlist."}
+
+
+# get the logged-in user's wishlist
+@router.get("/wishlist")
+def get_wishlist(user_email: str = Depends(get_current_user)):
+    user = UserAccount.find_by_email(user_email)
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found.")
+
+    return Wishlist.get_for_user(user.user_id)

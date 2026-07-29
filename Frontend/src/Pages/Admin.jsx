@@ -12,6 +12,7 @@ function Admin() {
     const [editDeveloper, setEditDeveloper] = useState("");
     const [editYear, setEditYear] = useState("");
     const [editDescription, setEditDescription] = useState("");
+    const [users, setUsers] = useState([]);
 
 
     // load all games so the admin can manage them
@@ -24,7 +25,18 @@ function Admin() {
     loadGames();
 }, []);
 
-
+     useEffect(() => {
+        async function loadUsers() {
+            const token = localStorage.getItem("token");
+            const response = await fetch ("http://localhost:8000/admin/users", { 
+                headers: { Authorization: "Bearer " + token },
+            });
+            if (response.ok) {
+                setUsers(await response.json());
+        }
+    }
+    loadUsers();
+}, []);
 
     // create a new game via the admin endpoint
     async function createGame() {
@@ -135,6 +147,38 @@ if (response.ok) {
     setMessage(data.detail || "Could not update game.");
 }
    }
+
+    // delete a user via the admin endpoint
+    async function deleteUser(userId) {
+        const token = localStorage.getItem("token");
+        const response = await fetch ("http://localhost:8000/admin/users/" + userId, {
+            method: "DELETE",
+            headers: { Authorization: "Bearer " + token },
+        });
+        if (response.ok) {
+            // reload the users so the list reflects the anonymised account
+            const refreshed = await fetch("http://localhost:8000/admin/users", {
+                headers: { Authorization: "Bearer " + token },
+            });
+            if (refreshed.ok) {
+            setUsers(await refreshed.json());
+        }
+            setMessage("User deleted. ");
+    } else {
+        const data = await response.json();
+        setMessage(data.detail || "Could not delete user. ");
+    }
+        
+    }
+
+
+
+
+
+
+
+
+
 
 
 
@@ -257,6 +301,30 @@ return (
             ))}
             </div>
             </div>
+            {/* list of users */}
+    <div className="bg-white border border-[#e6e6e0] rounded-lg p-5 mt-6">
+        <div className="text-xs font-mono text-[#9a9a90] mb-3">ALL USERS</div>
+        <div className="flex flex-col gap-2">
+            {/* only show non deleted users */}
+            {users.filter((user) => !user.is_deleted).map((user) => ( 
+                <div
+                  key={user.user_id}
+                  className="flex items-center justify-between border border-[#e6e6e0] rounded-md p-3"
+                >
+                    <div>
+                        <div className="text-sm font-semibold text-[#2b2b2b]">{user.username}</div>
+                        <div className="text-xs text-[#7a7a72]">{user.email} · {user.role}</div>
+                    </div>
+                    <button
+                      onClick={() => deleteUser(user.user_id)}
+                      className="text-xs text-[#c0392b] hover:underline"
+                    >
+                        Delete
+                    </button>
+                </div>
+            ))}
+        </div>
+    </div>
  </div>
 );
 }
