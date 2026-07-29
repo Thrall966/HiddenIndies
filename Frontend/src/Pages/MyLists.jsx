@@ -18,6 +18,23 @@ function MyLists() {
   loadWishlist();
 }, []);
 
+
+
+
+// remove a game from the wishlist
+  async function removeFromWishlist(gameId) {
+    const token = localStorage.getItem("token");
+    const response = await fetch("http://localhost:8000/wishlist/" + gameId, {
+      method: "DELETE",
+      headers: { Authorization: "Bearer " + token },
+    });
+    if (response.ok) {
+      // drop it from the list so it disappears immediately
+      setWishlist(wishlist.filter((g) => g.game_id !== gameId));
+    }
+  }
+
+  
 return (
     <div className="p-8 max-w-3xl">
       <h2 className="text-xl font-semibold text-[#2b2b2b] mb-6">My Wishlist</h2>
@@ -36,7 +53,18 @@ return (
                 <div className="text-sm font-semibold text-[#2b2b2b]">{game.title}</div>
                 <div className="text-xs text-[#7a7a72]">{game.developer} · {game.release_year}</div>
               </div>
-              <div className="text-xs text-[#6b6b63]">★ {game.average_rating}</div>
+              <div className="flex items-center gap-4">
+                <span className="text-xs text-[#6b6b63]">★ {game.average_rating}</span>
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    removeFromWishlist(game.game_id);
+                  }}
+                  className="text-xs text-[#c0392b] hover:underline"
+                >
+                  Remove
+                </button>
+              </div>
             </Link>
           ))}
         </div>
