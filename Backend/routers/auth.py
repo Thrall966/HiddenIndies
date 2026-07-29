@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from models.user import UserAccount
-from auth_utils import create_access_token, get_current_user
+from auth_utils import create_access_token, get_current_user, get_current_admin
 
 
 # Router groups related endpoints, main.py will include this router
@@ -80,3 +80,21 @@ def delete_account(user_email: str = Depends(get_current_user)):
     UserAccount.delete_account(user.user_id)
 
     return {"message": "Account deleted."}
+
+
+# Admin: list all users
+@router.get("/admin/users")
+def admin_list_users(admin=Depends(get_current_admin)):
+    return UserAccount.get_all()
+
+
+
+#Admin: Delete a user by anonymising their account
+@router.delete("/admin/users/{user_id}")
+def admin_delete_user(user_id: int, admin=Depends(get_current_admin)):
+    UserAccount.delete_account(user_id)
+    return {"message": "User deleted."}
+
+
+
+

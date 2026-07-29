@@ -84,3 +84,25 @@ class UserAccount:
             cursor.close()
             connection.close()
     
+
+
+    @staticmethod
+    def get_all():
+        # fetch all users for the admin to view
+        connection = get_db_connection()
+        cursor = connection.cursor()
+        cursor.execute("SELECT user_id, username, email, role, is_deleted FROM users ORDER BY user_id")
+        rows = cursor.fetchall()
+        cursor.close()
+        connection.close()
+
+        users = []
+        for row in rows:
+            users.append({
+                "user_id": row[0],
+                "username": row[1],
+                "email": row[2],
+                "role": row[3],
+                "is_deleted": row[4],
+            })
+        return users
