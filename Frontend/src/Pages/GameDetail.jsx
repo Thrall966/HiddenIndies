@@ -15,6 +15,9 @@ function GameDetail() {
     const [reviewText, setReviewText] = useState("");
     const [formMessage, setFormMessage] = useState("");
 
+  // feedback message for add to wishlist button
+  const [wishlistMessage, setWishlistMessage] = useState("");
+
   // fetch this one game when the page loads
   useEffect(() => {
     async function loadGame() {
@@ -61,6 +64,26 @@ function GameDetail() {
     }
     }
 
+// add this game to user's wishlist
+async function addToWishlist() {
+  const token = localStorage.getItem("token");
+  try {
+    const response = await fetch("http://localhost:8000/wishlist/" + gameId, {
+      method: "POST",
+      headers: {Authorization: "Bearer " + token },
+    });
+    const data = await response.json();
+    if (response.ok) {
+      setWishlistMessage("Added to wishlist.");
+    } else {
+      setWishlistMessage(data.detail || "Could not add to wishlist.");
+}
+  } catch (error) {
+    setWishlistMessage("Could not reach the server.");
+  }
+}
+
+
   // while the game is still loading, show nothing yet
   if (game === null) {
     return <div className="p-8 text-sm text-[#7a7a72]">Loading...</div>;
@@ -85,6 +108,20 @@ function GameDetail() {
         <span className="text-[#b8902f] font-semibold">◆ gem score</span>
         <span className="text-[#a8a8a0]">{game.review_count} reviews</span>
       </div>
+      {/* add to wishlist, only for logged in users */}
+      {username && (
+        <div className="mt-4">
+        <button
+        onClick={addToWishlist}
+        className="text-xs px-4 py-2 border border-[#b8902f] text-[#b8902f] rounded-md hover:bg-[#b8902f] hover:text-white transition"
+        >
+          Add to wishlist
+        </button>
+        {wishlistMessage && (
+          <span className="text-xs text-[#6b6b63] ml-3">{wishlistMessage}</span>
+        )}
+        </div>
+      )}
 
       {/* reviews section */}
       <div className="mt-8 border-t border-[#e6e6e0] pt-6">
