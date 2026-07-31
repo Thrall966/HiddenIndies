@@ -43,6 +43,9 @@ def get_game(game_id: int):
     if game is None:
         raise HTTPException(status_code=404, detail="Game not found.")
 
+    # compute this game's gem score so the detail page can show it
+    gem_score = DiscoveryEngine.get_gem_score_for_game(game_id)
+
     return {
         "game_id": game.game_id,
         "title": game.title,
@@ -51,6 +54,7 @@ def get_game(game_id: int):
         "description": game.description,
         "average_rating": float(game.average_rating),
         "review_count": game.review_count,
+        "gem_score": gem_score,
     }
 
 # returns all reviews for a single game

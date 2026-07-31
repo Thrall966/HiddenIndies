@@ -23,12 +23,8 @@ class DiscoveryEngine:
         cursor.close()
         connection.close()
 
-        # global mean is average of all game's average ratings that have reviews
-        rated_games = [row for row in rows if row[6] > 0]
-        if len(rated_games) == 0:
-            global_mean = 0
-        else:
-            global_mean = sum(float(row[5]) for row in rated_games) / len(rated_games)
+        # computed by the shared method so the logic lives in one place
+        global_mean = DiscoveryEngine.get_global_mean()
 
 
         # build a list of games with their gem scores
@@ -51,3 +47,38 @@ class DiscoveryEngine:
         return games
 
 
+    @staticmethod
+    def get_global_mean():
+        # the global mean is the average of all rated games average ratings
+        connection = get_db_connection()
+        cursor = connection.cursor()
+        cursor.execute("SELECT average_rating, review_count FROM games")
+        rows = cursor.fetchall()
+        cursor.close()
+        connection.close()
+
+
+        rated_games = [row for row in rows if row[1] > 0]
+        if len(rated_games) == 0:
+            return 0
+        return sum(float(row[0]) for row in rated_games) / len(rated_games)
+
+
+
+
+    @staticmethod
+    def get_gem_score_for_game(game_id):
+        # compute the gem score for a single game by its id
+        connection = get_db_connection()
+        cursor = connection.cursor()
+        cursor.execute("SELECT average_rating, review_count FROM games WHERE game_id = %s", (game_id,))
+        row = cursor.fetchone()
+        cursor.close()
+        connection.close()
+
+        if row is None:
+            return None
+
+        global_mean = DiscoveryEngine.get_global_mean()
+        gem_score = DiscoveryEngine.compute_gem_score(row[0], row[1], global_mean)
+        return round(gem_score, 2)

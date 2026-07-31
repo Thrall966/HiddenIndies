@@ -103,7 +103,7 @@ class Review:
 
     @staticmethod
     def update(review_id, user_id, rating, review_text):
-        # update a review only if it belongs to this user
+        # update a review onlits y if it belongs to this user
         connection = get_db_connection()
         cursor = connection.cursor()
         try:

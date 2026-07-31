@@ -40,13 +40,10 @@ function Browse() {
               {game.description}
             </p>
 
-            {/* the two scores from the wireframe */}
+            {/* Average rating score */}
             <div className="flex items-center gap-4 mt-3 text-xs">
               <span className="text-[#6b6b63]">
                 ★ {game.average_rating.toFixed(1)}
-              </span>
-              <span className="text-[#b8902f] font-semibold">
-                ◆ gem
               </span>
               <span className="text-[#a8a8a0]">
                 {game.review_count} reviews

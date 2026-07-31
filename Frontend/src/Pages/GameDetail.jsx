@@ -105,7 +105,7 @@ async function addToWishlist() {
         <span className="text-[#6b6b63]">
           ★ {game.average_rating.toFixed(1)} community
         </span>
-        <span className="text-[#b8902f] font-semibold">◆ gem score</span>
+        <span className="text-[#b8902f] font-semibold">◆ {game.gem_score} gem score</span>
         <span className="text-[#a8a8a0]">{game.review_count} reviews</span>
       </div>
       {/* add to wishlist, only for logged in users */}
