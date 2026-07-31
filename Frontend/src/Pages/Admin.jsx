@@ -1,6 +1,10 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../AuthContext";
 
 function Admin() {
+    const { logout } = useAuth();
+    const navigate = useNavigate();
     const [games, setGames] = useState([]);
     const [title, setTitle] = useState("");
     const [developer, setDeveloper] = useState("");
@@ -33,6 +37,10 @@ function Admin() {
             });
             if (response.ok) {
                 setUsers(await response.json());
+            } else if 
+                (response.status === 401) {
+                    logout();
+                    navigate("/login");
         }
     }
     loadUsers();

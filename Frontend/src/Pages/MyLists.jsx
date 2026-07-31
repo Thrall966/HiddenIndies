@@ -1,7 +1,10 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../AuthContext";
 
 function MyLists() {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
   const [wishlist, setWishlist] = useState([]);
 
   // load the user's wishlist when the page opens
@@ -13,6 +16,9 @@ function MyLists() {
     });
     if (response.ok) {
       setWishlist(await response.json());
+    } else if (response.status === 401) {
+      logout();
+      navigate("/login");
     }
   }
   loadWishlist();

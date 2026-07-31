@@ -21,6 +21,9 @@ useEffect(() => {
         });
         if (response.ok) {
             setReviews(await response.json());
+        } else if (response.status === 401) {
+          logout();
+          navigate("/login");    
         }
         
     }
