@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../AuthContext";
 
 function Admin() {
-    const { logout } = useAuth();
+    const { logout, setAuthMessage } = useAuth();
     const navigate = useNavigate();
     const [games, setGames] = useState([]);
     const [title, setTitle] = useState("");
@@ -39,6 +39,7 @@ function Admin() {
                 setUsers(await response.json());
             } else if 
                 (response.status === 401) {
+                    setAuthMessage("Your session has expired. Please log in again.");
                     logout();
                     navigate("/login");
         }
@@ -178,16 +179,6 @@ if (response.ok) {
     }
         
     }
-
-
-
-
-
-
-
-
-
-
 
 
 return (

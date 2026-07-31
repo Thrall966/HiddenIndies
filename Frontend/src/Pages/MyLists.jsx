@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../AuthContext";
 
 function MyLists() {
-  const { logout } = useAuth();
+  const { logout, setAuthMessage } = useAuth();
   const navigate = useNavigate();
   const [wishlist, setWishlist] = useState([]);
 
@@ -17,6 +17,7 @@ function MyLists() {
     if (response.ok) {
       setWishlist(await response.json());
     } else if (response.status === 401) {
+      setAuthMessage("Your session has expired. Please log in again.");
       logout();
       navigate("/login");
     }

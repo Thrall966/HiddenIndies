@@ -5,7 +5,7 @@ import { useAuth } from "../AuthContext";
 function AuthForm() {
   // which tab is active register or login
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, authMessage } = useAuth();
   const location = useLocation();
   const [mode, setMode] = useState(location.pathname === "/login" ? "login" : "register");
 
@@ -100,7 +100,12 @@ function AuthForm() {
               Register
             </button>
           </div>
-
+          {/* session expired or other auth message */}
+          {authMessage && (
+            <div className="w-80 mt-4 bg-[#fdecea] border border-[#c0392b] text-[#c0392b] text-xs rounded-md px-4 py-2 text-center">
+              {authMessage}
+            </div>
+          )}
           {/* fields, wrapped in a form so pressing enter submits */}
           <form
             onSubmit={(e) => {

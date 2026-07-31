@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../AuthContext";
 
 function Profile() {
-  const { username, logout } = useAuth();
+  const { username, logout, setAuthMessage } = useAuth();
   const navigate = useNavigate();
   const [editingId, setEditingId] = useState(null);
   const [editRating, setEditRating] = useState("");
@@ -22,6 +22,7 @@ useEffect(() => {
         if (response.ok) {
             setReviews(await response.json());
         } else if (response.status === 401) {
+          setAuthMessage("Your session has expired. Please log in again");
           logout();
           navigate("/login");    
         }

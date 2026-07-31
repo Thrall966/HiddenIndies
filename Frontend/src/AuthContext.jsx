@@ -8,6 +8,7 @@ export function AuthProvider({ children }) {
   // read any existing login from localStorage when the app first loads
   const [username, setUsername] = useState(localStorage.getItem("username"));
   const [role, setRole] = useState(localStorage.getItem("role"));
+  const [authMessage, setAuthMessage] = useState("");
 
   // called on successful login
   function login(token, name, userRole) {
@@ -16,6 +17,7 @@ export function AuthProvider({ children }) {
     localStorage.setItem("role", userRole);
     setUsername(name);
     setRole(userRole);
+    setAuthMessage("");
   }
 
   // called on logout
@@ -28,7 +30,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ username, role, login, logout }}>
+    <AuthContext.Provider value={{ username, role, login, logout, authMessage, setAuthMessage }}>
       {children}
     </AuthContext.Provider>
   );
