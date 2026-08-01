@@ -55,9 +55,11 @@ function Header() {
         <NavLink to="/discover" className={navClass}>
           Discover
         </NavLink>
+        {username && (
         <NavLink to="/lists" className={navClass}>
           My Lists
         </NavLink>
+        )}
         {role === "admin" && (
           <NavLink to="/admin" className={navClass}>
             Admin
