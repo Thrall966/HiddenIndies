@@ -88,14 +88,14 @@ class Game:
 
 
     @staticmethod
-    def create(title, developer, release_year, description):
+    def create(title, developer, release_year, description, genre):
         # insert a new game, return its new id
         connection = get_db_connection()
         cursor = connection.cursor()
         try:
             cursor.execute(
-                "INSERT INTO games (title, developer, release_year, description) VALUES (%s, %s, %s, %s) RETURNING game_id",
-                (title, developer, release_year, description),
+                "INSERT INTO games (title, developer, release_year, description, genre) VALUES (%s, %s, %s, %s, %s) RETURNING game_id",
+                (title, developer, release_year, description, genre),
             )
             new_id = cursor.fetchone()[0]
             connection.commit()
@@ -107,14 +107,14 @@ class Game:
 
 
     @staticmethod
-    def update(game_id, title, developer, release_year, description):
+    def update(game_id, title, developer, release_year, description, genre):
         # update to an existing game, return the game_id or None if it did not exist
         connection = get_db_connection()
         cursor = connection.cursor()
         try:
             cursor.execute(
-                "UPDATE games SET title = %s, developer = %s, release_year = %s, description = %s WHERE game_id = %s RETURNING game_id",
-                (title, developer, release_year, description, game_id),
+                "UPDATE games SET title = %s, developer = %s, release_year = %s, description = %s, genre = %s WHERE game_id = %s RETURNING game_id",
+                (title, developer, release_year, description, genre, game_id),
             )
             row = cursor.fetchone()
             connection.commit()

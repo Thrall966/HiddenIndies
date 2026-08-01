@@ -93,7 +93,7 @@ async function addToWishlist() {
     <div className="p-8 max-w-3xl">
       <h2 className="text-2xl font-bold text-[#2b2b2b]">{game.title}</h2>
       <div className="text-sm text-[#7a7a72] mt-1">
-        {game.developer} · {game.release_year}
+        {game.developer} · {game.release_year} · {game.genre}
       </div>
 
       <p className="text-sm text-[#6b6b63] mt-4 leading-relaxed">

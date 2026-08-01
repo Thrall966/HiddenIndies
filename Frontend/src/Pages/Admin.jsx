@@ -10,12 +10,14 @@ function Admin() {
     const [developer, setDeveloper] = useState("");
     const [releaseYear, setReleaseYear] = useState("");
     const [description, setDescription] = useState("");
+    const [genre, setGenre] = useState("");
     const [message, setMessage] = useState("");
     const [editingId, setEditingId] = useState(null);
     const [editTitle, setEditTitle] = useState("");
     const [editDeveloper, setEditDeveloper] = useState("");
     const [editYear, setEditYear] = useState("");
     const [editDescription, setEditDescription] = useState("");
+    const [editGenre, setEditGenre] = useState("");
     const [users, setUsers] = useState([]);
 
 
@@ -61,6 +63,7 @@ function Admin() {
         developer: developer,
         release_year: Number(releaseYear),
         description: description,
+        genre: genre,
     }),
 });
 
@@ -76,12 +79,14 @@ if (response.ok) {
             description: description,
             average_rating: 0,
             review_count: 0,
+            genre: genre,
         },
     ]);
     setTitle("");
     setDeveloper("");
     setReleaseYear("");
     setDescription("");
+    setGenre("");
     setMessage("Game added.");
 } else {
     const data = await response.json();
@@ -115,6 +120,7 @@ if (response.ok) {
     setEditDeveloper(game.developer);
     setEditYear(String(game.release_year));
     setEditDescription(game.description);
+    setEditGenre(game.genre);
    }
 
    // save the edited game via the admin endpoint
@@ -131,6 +137,7 @@ if (response.ok) {
             developer: editDeveloper,
             release_year : Number(editYear),
             description: editDescription,
+            genre: editGenre,
         }),
     });
 
@@ -145,6 +152,7 @@ if (response.ok) {
                 developer: editDeveloper,
                 release_year: Number(editYear),
                 description: editDescription,
+                genre: editGenre,
             }
             :g
         )
@@ -215,6 +223,16 @@ return (
                 onChange={(e) => setDescription(e.target.value)}
                 className="border-[1.5px] border-[#d8d8d0] rounded-md px-3 py-2 text-sm outline-none focus:border-[#2b2b2b] min-h-[60px]"
             />
+            <select
+            value={genre}
+            onChange={(e) => setGenre(e.target.value)}
+            className="h-[38px] border-[1.5px] border-[#d8d8d0] rounded-md px-3 text-sm outline-none focus:border-[#2b2b2b]"
+            >
+                <option value="">Select genre</option>
+                {["Adventure", "Card Game", "Horror", "Metroidvania", "Platformer", "Puzzle", "RPG", "Roguelike", "Simulation"].map((g) => (
+                    <option key={g} value={g}>{g}</option>
+                ))}
+            </select>
             <button
                 onClick={createGame}
                 className="h-[38px] px-4 bg-[#2b2b2b] text-white text-sm font-semibold rounded-md hover:bg-black transition self-start"
@@ -252,6 +270,18 @@ return (
             onChange={(e) => setEditDescription(e.target.value)}
             className="border-[1.5px] border-[#d8d8d0] rounded-md px-3 py-2 text-sm outline-none focus:border-[#2b2b2b] min-h-[60px]"
           />
+            <select
+            value={editGenre}
+            onChange={(e) => setEditGenre(e.target.value)}
+            className="h-[38px] border-[1.5px] border-[#d8d8d0] rounded-md px-3 text-sm outline-none focus:border-[#2b2b2b]"
+          >
+            <option value="">Select genre</option>
+            {["Adventure", "Card Game", "Horror", "Metroidvania", "Platformer", "Puzzle", "RPG", "Roguelike", "Simulation"].map((g) => (
+              <option key={g} value={g}>
+                {g}
+              </option>
+            ))}
+          </select>
           <div className="flex gap-3">
             <button
               onClick={() => saveGame(editingId)}
