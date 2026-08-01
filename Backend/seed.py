@@ -38,24 +38,24 @@ def seed_users(cursor):
 def seed_games(cursor):
     # Indie games to populate the database with, including title, developer, release year, and description
     games = [
-        ("Hollow Knight", "Team Cherry", 2017, "explore a vast ruined kingdom of insects and heroes"),
-        ("Celeste", "Maddy Makes Games", 2018, "help madeline survive her journey up celeste mountain"),
-        ("Stardew Valley", "ConcernedApe", 2016, "build and manage your own farm in a peaceful valley"),
-        ("Hades", "Supergiant Games", 2020, "defy the god of the dead in this rogue-like dungeon crawler"),
-        ("Undertale", "Toby Fox", 2015, "a world where nobody has to die, if you choose so"),
-        ("Outer Wilds", "Mobius Digital", 2019, "explore a solar system stuck in an endless time loop"),
-        ("Disco Elysium", "ZA/UM", 2019, "a detective rpg with no combat, only dialogue and consequence"),
-        ("Tunic", "Andrew Shouldice", 2022, "a small fox on a big adventure in a mysterious land"),
-        ("Inscryption", "Daniel Mullins", 2021, "a dark card-based odyssey full of secrets"),
-        ("Return of the Obra Dinn", "Lucas Pope", 2018, "identify the fate of a ship's lost crew"),
-        ("A Short Hike", "adamgryu", 2019, "hike, climb and glide across a peaceful island park"),
-        ("Signalis", "rose-engine", 2022, "a survival horror set in a lonely, dreamlike world"),
+        ("Hollow Knight", "Team Cherry", 2017, "explore a vast ruined kingdom of insects and heroes", "Metroidvania"),
+        ("Celeste", "Maddy Makes Games", 2018, "help madeline survive her journey up celeste mountain", "Platformer"),
+        ("Stardew Valley", "ConcernedApe", 2016, "build and manage your own farm in a peaceful valley", "Simulation"),
+        ("Hades", "Supergiant Games", 2020, "defy the god of the dead in this rogue-like dungeon crawler", "Roguelike"),
+        ("Undertale", "Toby Fox", 2015, "a world where nobody has to die, if you choose so", "RPG"),
+        ("Outer Wilds", "Mobius Digital", 2019, "explore a solar system stuck in an endless time loop", "Adventure"),
+        ("Disco Elysium", "ZA/UM", 2019, "a detective rpg with no combat, only dialogue and consequence", "RPG"),
+        ("Tunic", "Andrew Shouldice", 2022, "a small fox on a big adventure in a mysterious land", "Adventure"),
+        ("Inscryption", "Daniel Mullins", 2021, "a dark card-based odyssey full of secrets", "Card Game"),
+        ("Return of the Obra Dinn", "Lucas Pope", 2018, "identify the fate of a ship's lost crew", "Puzzle"),
+        ("A Short Hike", "adamgryu", 2019, "hike, climb and glide across a peaceful island park", "Adventure"),
+        ("Signalis", "rose-engine", 2022, "a survival horror set in a lonely, dreamlike world", "Horror"),
     ]
     game_ids = {}
-    for title, developer, year, description in games:
+    for title, developer, year, description, genre in games:
         cursor.execute(
-            "INSERT INTO games (title, developer, release_year, description) VALUES (%s, %s, %s, %s) RETURNING game_id",
-            (title, developer, year, description),
+            "INSERT INTO games (title, developer, release_year, description, genre) VALUES (%s, %s, %s, %s, %s) RETURNING game_id",
+            (title, developer, year, description, genre),
         )
         game_ids[title] = cursor.fetchone()[0]
 

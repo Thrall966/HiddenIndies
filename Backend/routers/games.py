@@ -13,10 +13,12 @@ router = APIRouter()
 
 # browse controller, returns all games in the catalogue
 @router.get("/games")
-def get_games(search: str = ""):
+def get_games(search: str = "", genre: str = ""):
     # filter by search term given otherwise return all games
     if search:
         games = Game.search(search)
+    elif genre:
+        games = Game.get_by_genre(genre)
     else:
         games = Game.get_all()
 
@@ -31,6 +33,7 @@ def get_games(search: str = ""):
             "description": game.description,
             "average_rating": float(game.average_rating),
             "review_count": game.review_count,
+            "genre": game.genre,
         })
     return result
 
