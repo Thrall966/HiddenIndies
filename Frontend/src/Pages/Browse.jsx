@@ -33,8 +33,27 @@ function Browse() {
       {/* genre sidebar */}
       <aside className="w-48 shrink-0">
       <h3 className="text-sm font-semibold text-[#2b2b2b] mb-3">Genres</h3>
-      </aside>
+     
 
+      {/* all games clears the genre filter */}
+      <Link
+        to="/browse"
+        className={"block text-sm py-1 hover:text-[#b8902f] transition " + (genre === "" ? "text-[#b8902f] font-semibold" : "text-[#6b6b63]")}
+        >
+        All Games
+        </Link>
+
+        {/* one clickable item per genre, sets the genre in the url */}
+        {["Adventure", "Card Game", "Horror", "Metroidvania", "Platformer", "Puzzle", "RPG", "Roguelike", "Simulation"].map((g) => (
+          <Link
+            key={g}
+            to={"/browse?genre=" + encodeURIComponent(g)}
+            className={"block text-sm py-1 hover:text-[#b8902f] transition " + (genre === g ? "text-[#b8902f] font-semibold" : "text-[#6b6b63]")}
+          >
+            {g}
+          </Link>
+        ))}
+      </aside>
       {/* game grid */}
       <div className="flex-1">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
