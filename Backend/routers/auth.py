@@ -26,6 +26,9 @@ def register(payload: RegisterRequest):
     if UserAccount.find_by_email(payload.email) is not None:
         raise HTTPException(status_code=409, detail="Email already registered.")
 
+    if UserAccount.find_by_username(payload.username) is not None:
+        raise HTTPException(status_code=409, detail="Username already taken.")
+
     # Hash the password
     password_hash = UserAccount.hash_password(payload.password)
 

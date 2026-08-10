@@ -106,3 +106,18 @@ class UserAccount:
                 "is_deleted": row[4],
             })
         return users
+
+
+    @staticmethod
+    def find_by_username(username):
+        # open a connection and ask the database if this username exists
+        connection = get_db_connection()
+        cursor = connection.cursor()
+        cursor.execute("SELECT username, email, password_hash, user_id, role FROM users WHERE username = %s AND is_deleted = FALSE", (username,)) 
+        row = cursor.fetchone()
+        cursor.close()
+        connection.close()
+        if row is None:
+            return None
+        # build a UserAccount object from the database row
+        return UserAccount(username=row[0], email=row[1], password_hash=row[2], user_id=row[3], role=row[4])
