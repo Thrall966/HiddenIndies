@@ -1,4 +1,4 @@
-import { createContext, useState, useContext } from "react";
+import { createContext, useState, useContext, useEffect } from "react";
 
 // holds auth state
 const AuthContext = createContext();
@@ -9,6 +9,7 @@ export function AuthProvider({ children }) {
   const [username, setUsername] = useState(localStorage.getItem("username"));
   const [role, setRole] = useState(localStorage.getItem("role"));
   const [authMessage, setAuthMessage] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState(null);
 
   // called on successful login
   function login(token, name, userRole) {
@@ -29,8 +30,31 @@ export function AuthProvider({ children }) {
     setRole(null);
   }
 
+
+// load the logged in user's avatar when the app starts
+useEffect(() => {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    return;
+  }
+  async function loadAvatar() {
+    const response = await fetch("http://localhost:8000/account/avatar", {
+      headers: {
+        "Authorization": "Bearer " + token,
+      },
+    });
+    if (response.ok) {
+      const data = await response.json();
+      setAvatarUrl(data.avatar_url);
+    }
+  }
+  loadAvatar();
+}, [username]);
+
+
+
   return (
-    <AuthContext.Provider value={{ username, role, login, logout, authMessage, setAuthMessage }}>
+    <AuthContext.Provider value={{ username, role, login, logout, authMessage, setAuthMessage, avatarUrl, setAvatarUrl }}>
       {children}
     </AuthContext.Provider>
   );

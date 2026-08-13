@@ -4,7 +4,7 @@ import {useState} from "react";
 
 
 function Header() {
-  const { username, role, logout } = useAuth();
+  const { username, role, logout, avatarUrl } = useAuth();
   const navigate = useNavigate();
 
 
@@ -69,7 +69,16 @@ function Header() {
         {/* show username and logout when logged in, otherwise a login link */}
         {username ? (
           <div className="ml-2 flex items-center gap-3">
-            <Link to="/profile" className="text-sm text-[#2b2b2b] font-semibold">
+            <Link to="/profile" className="flex items-center gap-2 text-sm text-[#2b2b2b] font-semibold">
+              {avatarUrl ? (
+                <img
+                  src={avatarUrl}
+                  alt="avatar"
+                  className="w-7 h-7 rounded-full object-cover"
+                />
+              ) : (
+                <div className="w-7 h-7 rounded-full bg-[#e6e6e0]" />
+              )}
               {username}
             </Link>
             <button

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../AuthContext";
 
 function Profile() {
-  const { username, logout, setAuthMessage } = useAuth();
+  const { username, logout, setAuthMessage, setAvatarUrl: setHeaderAvatar } = useAuth();
   const navigate = useNavigate();
   const [editingId, setEditingId] = useState(null);
   const [editRating, setEditRating] = useState("");
@@ -106,6 +106,7 @@ useEffect(() => {
         if (data.secure_url) {
           setAvatarUrl(data.secure_url);
           await saveAvatarToAccount(data.secure_url);
+          setHeaderAvatar(data.secure_url); // update the avatar in the header
         } else {
           setMessage("Could not upload image.");
         }
