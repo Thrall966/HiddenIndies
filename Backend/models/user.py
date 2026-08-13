@@ -121,3 +121,35 @@ class UserAccount:
             return None
         # build a UserAccount object from the database row
         return UserAccount(username=row[0], email=row[1], password_hash=row[2], user_id=row[3], role=row[4])
+
+
+    @staticmethod
+    def update_avatar(user_email, avatar_url):
+        # save the avatar URL for a user in the database
+        connection = get_db_connection()
+        cursor = connection.cursor()
+        try:
+            cursor.execute(
+                "UPDATE users SET avatar_url = %s WHERE email = %s",
+                (avatar_url, user_email),
+            )
+            connection.commit()
+        finally:
+            cursor.close()
+            connection.close()
+
+    @staticmethod
+    def get_avatar(user_email):
+        # fetch the avatar URL for a user from the database
+        connection = get_db_connection()
+        cursor = connection.cursor()
+        try:
+            cursor.execute(
+                "SELECT avatar_url FROM users WHERE email = %s",
+                (user_email,),
+            )
+            row = cursor.fetchone()
+            return row[0] if row else None
+        finally:
+            cursor.close()
+            connection.close()

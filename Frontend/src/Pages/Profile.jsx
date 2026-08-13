@@ -11,6 +11,8 @@ function Profile() {
   const [confirming, setConfirming] = useState(false);
   const [message, setMessage] = useState("");
   const [reviews, setReviews] = useState([]);
+  const [avatarUrl, setAvatarUrl] = useState("");
+  const [uploading, setUploading] = useState(false);
 
 // fetch the logged in user's own reviews when the page loads
 useEffect(() => {
@@ -31,6 +33,23 @@ useEffect(() => {
     loadMyReviews();
 }, []);
 
+
+// fetch the logged in user's avatar when the page loads
+useEffect(() => {
+    async function loadAvatar() {
+        const token = localStorage.getItem("token");
+        const response = await fetch("http://localhost:8000/account/avatar", {
+            headers: { Authorization: "Bearer " + token },
+        });
+        if (response.ok) {
+          const data = await response.json();
+          if (data.avatar_url) {
+            setAvatarUrl(data.avatar_url);
+          }
+        }
+    }
+    loadAvatar();
+}, []); 
 
 
   // call the protected delete-account endpoint
@@ -65,6 +84,53 @@ useEffect(() => {
         setReviews(reviews.filter((r) => r.review_id !== reviewId));
     }
 }
+  // upload a chosen image file to cloudinary, then save returned url
+    async function uploadAvatar(event) {
+      const file = event.target.files[0];
+      if (!file) { 
+        return;
+      }
+      setUploading(true);
+
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", "cloudinary"); // the name of the upload preset in cloudinary
+
+      try {
+        const response = await fetch(
+          "https://api.cloudinary.com/v1_1/hiaob1yl/image/upload",
+          {method: "POST", body: formData}
+        );
+        const data = await response.json();
+
+        if (data.secure_url) {
+          setAvatarUrl(data.secure_url);
+          await saveAvatarToAccount(data.secure_url);
+        } else {
+          setMessage("Could not upload image.");
+        }
+      } catch (error) {
+        setMessage("Could not reach cloudinary.");
+      }
+      setUploading(false);
+    }
+
+  // save the uploaded avatar url to the user's account
+  async function saveAvatarToAccount(url) {
+    const token = localStorage.getItem("token");
+    await fetch("http://localhost:8000/account/avatar", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token,
+      },
+      body: JSON.stringify({ avatar_url: url }),
+    });
+  }
+
+
+
+
   // start editing a review, filling form with its current values
   function startEdit(review) {
     setEditingId(review.review_id);
@@ -107,8 +173,32 @@ setEditingId(null);
       <h2 className="text-xl font-semibold text-[#2b2b2b] mb-6">My Account</h2>
 
       <div className="bg-white border border-[#e6e6e0] rounded-lg p-5 mb-6">
-        <div className="text-xs font-mono text-[#9a9a90]">USERNAME</div>
-        <div className="text-sm text-[#2b2b2b] mt-1">{username}</div>
+ <div className="flex items-center gap-4">
+          {avatarUrl ? (
+            <img
+              src={avatarUrl}
+              alt="avatar"
+              className="w-16 h-16 rounded-full object-cover border border-[#e6e6e0]"
+            />
+          ) : (
+            <div className="w-16 h-16 rounded-full bg-[#e6e6e0] flex items-center justify-center text-[#9a9a90] text-xs">
+              no avatar
+            </div>
+          )}
+          <div>
+            <div className="text-xs font-mono text-[#9a9a90]">USERNAME</div>
+            <div className="text-sm text-[#2b2b2b] mt-1 mb-2">{username}</div>
+            <label className="text-xs text-[#2b2b2b] underline cursor-pointer">
+              {uploading ? "uploading..." : "change avatar"}
+              <input
+                type="file"
+                accept="image/*"
+                onChange={uploadAvatar}
+                className="hidden"
+              />
+            </label>
+          </div>
+        </div>
       </div>
 
       {/* the user's reviews */}

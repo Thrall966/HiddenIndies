@@ -98,6 +98,17 @@ def admin_delete_user(user_id: int, admin=Depends(get_current_admin)):
     UserAccount.delete_account(user_id)
     return {"message": "User deleted."}
 
+# Update the logged in user's avatar
+@router.put("/account/avatar")
+def update_avatar(payload: dict, user_email: str = Depends(get_current_user)):
+    UserAccount.update_avatar(user_email, payload.get("avatar_url"))
+    return {"message": "Avatar updated."}
+
+
+# Get the logged in user's avatar
+@router.get("/account/avatar")
+def get_avatar(user_email: str = Depends(get_current_user)):
+    return {"avatar_url": UserAccount.get_avatar(user_email)}
 
 
 
