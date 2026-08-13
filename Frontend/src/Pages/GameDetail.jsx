@@ -180,9 +180,20 @@ async function addToWishlist() {
                 className="bg-white border border-[#e6e6e0] rounded-lg p-4"
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-semibold text-[#2b2b2b]">
-                    {review.username}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    {review.avatar_url ? (
+                      <img
+                        src={review.avatar_url}
+                        alt="avatar"
+                        className="w-6 h-6 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-6 h-6 rounded-full bg-[#e6e6e0]" />
+                    )}
+                    <span className="text-sm font-semibold text-[#2b2b2b]">
+                      {review.username}
+                    </span>
+                  </div>
                   <span className="text-xs text-[#6b6b63]">
                     ★ {review.rating}/10
                   </span>

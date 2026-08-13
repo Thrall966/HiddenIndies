@@ -3,7 +3,7 @@ from database import get_db_connection
 
 class Review:
     # constructor to hold one review's data
-    def __init__(self, user_id, game_id, rating, review_text, review_id=None, created_at=None, username=None):
+    def __init__(self, user_id, game_id, rating, review_text, review_id=None, created_at=None, username=None, avatar_url=None):
         self.user_id = user_id
         self.game_id = game_id
         self.rating = rating
@@ -11,6 +11,7 @@ class Review:
         self.review_id = review_id
         self.created_at = created_at
         self.username = username
+        self.avatar_url = avatar_url
 
     def save(self):
         # inserting review into the database
@@ -34,7 +35,7 @@ class Review:
         connection = get_db_connection()
         cursor = connection.cursor()
         cursor.execute(
-            "SELECT reviews.review_id, reviews.user_id, reviews.game_id, reviews.rating, reviews.review_text, reviews.created_at, users.username "
+            "SELECT reviews.review_id, reviews.user_id, reviews.game_id, reviews.rating, reviews.review_text, reviews.created_at, users.username, users.avatar_url "
             "FROM reviews JOIN users ON reviews.user_id = users.user_id "
             "WHERE reviews.game_id = %s ORDER BY reviews.created_at DESC",
             (game_id,),
@@ -53,6 +54,7 @@ class Review:
                 review_text=row[4],
                 created_at=row[5],
                 username=row[6],
+                avatar_url=row[7],
             ))
         return reviews
 

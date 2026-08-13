@@ -70,12 +70,14 @@ def get_reviews(game_id: int):
     result = []
     for review in reviews:
         display_name = "[deleted user]" if review.username.startswith("deleted_user_") else review.username #show a label for anonymised accounts instead of the internal name
+        display_avatar = None if review.username.startswith("deleted_user_") else review.avatar_url #show no avatar for anonymised accounts
         result.append({
             "review_id": review.review_id,
             "username": display_name,
             "rating": review.rating,
             "review_text": review.review_text,
             "created_at": str(review.created_at),
+            "avatar_url": display_avatar,
         })
     return result
 
