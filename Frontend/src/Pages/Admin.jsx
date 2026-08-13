@@ -19,6 +19,7 @@ function Admin() {
     const [editDescription, setEditDescription] = useState("");
     const [editGenre, setEditGenre] = useState("");
     const [users, setUsers] = useState([]);
+    const [gameToDelete, setGameToDelete] = useState(null);
 
 
     // load all games so the admin can manage them
@@ -109,8 +110,9 @@ if (response.ok) {
         setMessage("Game deleted.");
     } else {
         const data = await response.json();
-        setMessage(data.detail || "Could not delete game.");
+        setMessage(data.detail === "string" ? data.detail : "Could not delete game.");
     }
+     setGameToDelete(null); // close the confirmation modal
 }
 
    // start editing a game, fill the form with its current values
@@ -191,6 +193,34 @@ if (response.ok) {
 
 return (
 <div className="p-8 max-w-3xl">
+    {/* confirmation modal for deleting a game */}
+            {gameToDelete && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg p-6 max-w-md mx-4 shadow-lg">
+                        <div className="text-lg font-semibold text-[#2b2b2b] mb-3">
+                            Delete "{gameToDelete.title}"?
+                        </div>
+                        <div className="text-sm text-[#6a6a60] mb-6">
+                            Deleting this game will also permanently remove all of its
+                            reviews and ratings. This action cannot be undone.
+                        </div>
+                        <div className="flex justify-end gap-3">
+                            <button
+                                onClick={() => setGameToDelete(null)}
+                                className="text-sm text-[#6a6a60] hover:underline px-3 py-1"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={() => deleteGame(gameToDelete.game_id)}
+                                className="text-sm text-white bg-[#c0392b] hover:bg-[#a93226] rounded px-4 py-1"
+                            >
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
     <h2 className="text-xl font-semibold text-[#2b2b2b] mb-6">Admin Manage Catalogue </h2>
     <p className="text-xs text-[#7a7a72]">{games.length} games in the catalogue</p>
 
@@ -320,7 +350,7 @@ return (
                             Edit
                         </button>
                         <button
-                        onClick={() => deleteGame(game.game_id)}
+                        onClick={() => setGameToDelete(game)}
                         className="text-xs text-[#c0392b] hover:underline"
                         >
                             Delete
