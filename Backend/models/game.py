@@ -132,8 +132,12 @@ class Game:
         cursor = connection.cursor()
         try:
             cursor.execute(
-                "DELETE FROM games WHERE game_id = %s RETURNING game_id",
-                (game_id,),
+                "DELETE FROM reviews WHERE game_id = %s", (game_id,) #delete reviews first to avoid foreign key constraint error
+                
+            )
+            # then delete the game itself
+            cursor.execute(
+                "DELETE FROM games WHERE game_id = %s RETURNING game_id", (game_id,)
             )
             row = cursor.fetchone()
             connection.commit()

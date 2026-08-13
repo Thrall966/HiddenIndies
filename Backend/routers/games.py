@@ -206,10 +206,7 @@ def admin_update_game(game_id: int, payload: GameRequest, admin=Depends(get_curr
 #admin: delete a game
 @router.delete("/admin/games/{game_id}")
 def admin_delete_game(game_id: int, admin=Depends(get_current_admin)):
-    try:
-        deleted = Game.delete(game_id)
-    except psycopg2.errors.ForeignKeyViolation:
-        raise HTTPException(status_code=409, detail="Cannot delete a game that has reviews.")
+    deleted = Game.delete(game_id)
     if deleted is None:
         raise HTTPException(status_code=404, detail="Game not found.")
     return {"message": "Game deleted."}
