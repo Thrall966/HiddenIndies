@@ -9,13 +9,15 @@ import Profile from "./pages/Profile";
 import Admin from "./pages/Admin";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
+import Footer from "./components/Footer";
 
 // every page sits inside the same shell, so the header is always present
 function Layout({ children }) {
   return (
-    <div className="min-h-screen bg-[#ececdf]">
+    <div className="min-h-screen bg-[#ececdf] flex flex-col">
       <Header />
-      {children}
+      <div className="flex-1">{children}</div>
+      <Footer />
     </div>
   );
 }
