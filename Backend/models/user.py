@@ -153,3 +153,20 @@ class UserAccount:
         finally:
             cursor.close()
             connection.close()
+
+    @staticmethod
+    def full_delete(user_id):
+        # permanently delete a user account and all associated reviews from the database
+        connection = get_db_connection()
+        cursor = connection.cursor()
+        try:
+            # delete all reviews associated with the user
+            cursor.execute("DELETE FROM reviews WHERE user_id = %s", (user_id,))
+            # delete any wishlists associated with the user
+            cursor.execute("DELETE FROM wishlist WHERE user_id = %s", (user_id,))
+            # delete the user account
+            cursor.execute("DELETE FROM users WHERE user_id = %s", (user_id,))
+            connection.commit()
+        finally:
+            cursor.close()
+            connection.close()

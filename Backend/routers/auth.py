@@ -73,16 +73,18 @@ def login(payload: LoginRequest):
 
 
 @router.delete("/account")
-def delete_account(user_email: str = Depends(get_current_user)):
-    # Identifdy the logged in user
+def delete_account(mode: str = "anonymise", user_email: str = Depends(get_current_user)):
+    # Identify the logged in user
     user = UserAccount.find_by_email(user_email)
     if user is None:
         raise HTTPException(status_code=404, detail="User not found.")
 
-    # Anonymise their reviews and delete the account
-    UserAccount.delete_account(user.user_id)
-
-    return {"message": "Account deleted."}
+    # choose deletion type based on the mode user selected
+    if mode == "full":
+        UserAccount.full_delete(user.user_id)
+    else:
+        UserAccount.delete_account(user.user_id)
+    return {"message": "Account Deleted."}
 
 
 # Admin: list all users

@@ -53,10 +53,10 @@ useEffect(() => {
 
 
   // call the protected delete-account endpoint
-  async function deleteAccount() {
+  async function deleteAccount(mode) {
     const token = localStorage.getItem("token");
     try {
-      const response = await fetch("http://localhost:8000/account", {
+      const response = await fetch("http://localhost:8000/account?mode=" + mode, {
         method: "DELETE",
         headers: { Authorization: "Bearer " + token },
       });
@@ -303,17 +303,27 @@ setEditingId(null);
             Delete my account
           </button>
         ) : (
-          <div className="flex items-center gap-3">
-            <span className="text-xs text-[#2b2b2b]">Are you sure?</span>
+          <div className="flex flex-col gap-3">
+            <span className="text-xs text-[#2b2b2b]">
+              How would you like to delete your account?
+            </span>
             <button
-              onClick={deleteAccount}
-              className="text-xs px-4 py-2 bg-[#c0392b] text-white rounded-md"
+              onClick={() => deleteAccount("anonymise")}
+              className="text-xs px-4 py-2 border border-[#c0392b] text-[#c0392b] rounded-md text-left"
             >
-              Yes, delete
+              Anonymise my account and remove my personal details but keep my
+              ratings to help the community
+            </button>
+            <button
+              onClick={() => deleteAccount("full")}
+              className="text-xs px-4 py-2 bg-[#c0392b] text-white rounded-md text-left"
+            >
+              Delete everything and remove my account and all of my ratings and
+              reviews permanently
             </button>
             <button
               onClick={() => setConfirming(false)}
-              className="text-xs px-4 py-2 border border-[#d8d8d0] text-[#6b6b63] rounded-md"
+              className="text-xs px-4 py-2 border border-[#d8d8d0] text-[#6b6b63] rounded-md self-start"
             >
               Cancel
             </button>
