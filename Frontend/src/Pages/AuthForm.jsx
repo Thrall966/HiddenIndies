@@ -18,6 +18,10 @@ function AuthForm() {
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
 
+  // terms and privacy acceptance
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [acceptedPrivacy, setAcceptedPrivacy] = useState(false);
+
   // switch between log in and register, clearing any old message
   function switchMode(newMode) {
     setMode(newMode);
@@ -28,6 +32,12 @@ function AuthForm() {
 
   // sends the form to the backend, /register or /login depending on mode
   async function handleSubmit() {
+    // require both agreements before registering
+    if (mode === "register" && (!acceptedTerms || !acceptedPrivacy)) {
+      setIsError(true);
+      setMessage("You must accept the Terms of Service and Privacy Policy to register.");
+      return;
+    }
     const endpoint = mode === "register" ? "/register" : "/login";
 
     // register sends three fields, login only needs email and password
@@ -150,6 +160,40 @@ function AuthForm() {
                 className="h-[38px] w-full border-[1.5px] border-[#d8d8d0] rounded-md px-3 text-sm outline-none focus:border-[#2b2b2b]"
               />
             </div>
+
+            {/* terms and privacy checkboxes, only when registering */}
+            {mode === "register" && (
+              <div className="flex flex-col gap-2 mt-1">
+                <label className="flex items-start gap-2 text-xs text-[#6b6b63]">
+                  <input
+                    type="checkbox"
+                    checked={acceptedTerms}
+                    onChange={(e) => setAcceptedTerms(e.target.checked)}
+                    className="mt-0.5"
+                  />
+                  <span>
+                    I accept the{" "}
+                    <a href="/terms" target="_blank" className="text-[#2b2b2b] underline">
+                      Terms of Service
+                    </a>
+                  </span>
+                </label>
+                <label className="flex items-start gap-2 text-xs text-[#6b6b63]">
+                  <input
+                    type="checkbox"
+                    checked={acceptedPrivacy}
+                    onChange={(e) => setAcceptedPrivacy(e.target.checked)}
+                    className="mt-0.5"
+                  />
+                  <span>
+                    I accept the{" "}
+                    <a href="/privacy" target="_blank" className="text-[#2b2b2b] underline">
+                      Privacy Policy
+                    </a>
+                  </span>
+                </label>
+              </div>
+            )}
 
             {/* submit */}
             <button

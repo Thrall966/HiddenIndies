@@ -7,6 +7,8 @@ import MyLists from "./pages/MyLists";
 import GameDetail from "./pages/GameDetail";
 import Profile from "./pages/Profile";
 import Admin from "./pages/Admin";
+import Terms from "./pages/Terms";
+import Privacy from "./pages/Privacy";
 
 // every page sits inside the same shell, so the header is always present
 function Layout({ children }) {
@@ -37,6 +39,8 @@ function App() {
           <Route path="/login" element={<AuthForm />} />
           <Route path="/register" element={<AuthForm />} />
           <Route path="/admin" element={<Admin />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/privacy" element={<Privacy />} />
         </Routes>
       </Layout>
     </BrowserRouter>
