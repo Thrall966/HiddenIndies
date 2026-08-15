@@ -94,10 +94,14 @@ def admin_list_users(admin=Depends(get_current_admin)):
 
 
 
-#Admin: Delete a user by anonymising their account
+#Admin: Delete a user by anonymising their account or fully deleting it based on the mode parameter.
 @router.delete("/admin/users/{user_id}")
-def admin_delete_user(user_id: int, admin=Depends(get_current_admin)):
-    UserAccount.delete_account(user_id)
+def admin_delete_user(user_id: int, mode: str = "anonymise", admin=Depends(get_current_admin)):
+    if mode == "full":
+        UserAccount.full_delete(user_id)
+    else:
+        UserAccount.delete_account(user_id)
+    
     return {"message": "User deleted."}
 
 # Update the logged in user's avatar

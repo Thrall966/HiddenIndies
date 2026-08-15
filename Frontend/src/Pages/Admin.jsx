@@ -20,6 +20,7 @@ function Admin() {
     const [editGenre, setEditGenre] = useState("");
     const [users, setUsers] = useState([]);
     const [gameToDelete, setGameToDelete] = useState(null);
+    const [userToDelete, setUserToDelete] = useState(null);
 
 
     // load all games so the admin can manage them
@@ -168,9 +169,9 @@ if (response.ok) {
    }
 
     // delete a user via the admin endpoint
-    async function deleteUser(userId) {
+    async function deleteUser(userId, mode) {
         const token = localStorage.getItem("token");
-        const response = await fetch ("http://localhost:8000/admin/users/" + userId, {
+        const response = await fetch ("http://localhost:8000/admin/users/" + userId + "?mode=" + mode, {
             method: "DELETE",
             headers: { Authorization: "Bearer " + token },
         });
@@ -187,7 +188,7 @@ if (response.ok) {
         const data = await response.json();
         setMessage(data.detail || "Could not delete user. ");
     }
-        
+        setUserToDelete(null); // close the confirmation modal
     }
 
 
@@ -221,6 +222,41 @@ return (
                     </div>
                 </div>
             )}
+            {/* confirmation modal for deleting a user */}
+      {userToDelete && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md mx-4 shadow-lg">
+            <div className="text-lg font-semibold text-[#2b2b2b] mb-3">
+              Delete "{userToDelete.username}"?
+            </div>
+            <div className="text-sm text-[#6a6a60] mb-5">
+              Choose how to delete this user's account.
+            </div>
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={() => deleteUser(userToDelete.user_id, "anonymise")}
+                className="text-sm px-4 py-2 border border-[#c0392b] text-[#c0392b] rounded-md text-left"
+              >
+                Anonymise the account, remove personal details but keep the
+                ratings
+              </button>
+              <button
+                onClick={() => deleteUser(userToDelete.user_id, "full")}
+                className="text-sm px-4 py-2 bg-[#c0392b] text-white rounded-md text-left"
+              >
+                Delete everything, remove the account and all of its ratings and
+                reviews permanently
+              </button>
+              <button
+                onClick={() => setUserToDelete(null)}
+                className="text-sm px-4 py-2 border border-[#d8d8d0] text-[#6b6b63] rounded-md self-start"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     <h2 className="text-xl font-semibold text-[#2b2b2b] mb-6">Admin Manage Catalogue </h2>
     <p className="text-xs text-[#7a7a72]">{games.length} games in the catalogue</p>
 
@@ -375,7 +411,7 @@ return (
                         <div className="text-xs text-[#7a7a72]">{user.email} · {user.role}</div>
                     </div>
                     <button
-                      onClick={() => deleteUser(user.user_id)}
+                      onClick={() => setUserToDelete(user)}
                       className="text-xs text-[#c0392b] hover:underline"
                     >
                         Delete
