@@ -63,6 +63,17 @@ function Browse() {
               to={"/game/" + game.game_id}
               className="bg-white border border-[#e6e6e0] rounded-lg p-4 block hover:border-[#b8902f] transition"
             >
+              {game.cover_url ? (
+                <img
+                  src={game.cover_url}
+                  alt={game.title}
+                  className="w-full h-40 object-cover rounded-md mb-3"
+                />
+              ) : (
+                <div className="w-full h-40 rounded-md mb-3 bg-[#f0f0ea] flex items-center justify-center text-xs text-[#9a9a90]">
+                  no cover
+                </div>
+              )}
               <div className="font-semibold text-[#2b2b2b]">{game.title}</div>
               <div className="text-xs text-[#7a7a72] mt-0.5">
                 {game.developer} · {game.release_year}

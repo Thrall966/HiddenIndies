@@ -3,7 +3,7 @@ from database import get_db_connection
 
 class Game:
     # constructor to hold one games data
-    def __init__(self, game_id, title, developer, release_year, description, average_rating, review_count, genre):
+    def __init__(self, game_id, title, developer, release_year, description, average_rating, review_count, genre, cover_url=None):
         self.game_id = game_id
         self.title = title
         self.developer = developer
@@ -12,13 +12,14 @@ class Game:
         self.average_rating = average_rating
         self.review_count = review_count
         self.genre = genre
+        self.cover_url = cover_url
 
     @staticmethod
     def get_all():
         # fetch every game from the database and return them as a list of Game objects
         connection = get_db_connection()
         cursor = connection.cursor()
-        cursor.execute("SELECT game_id, title, developer, release_year, description, average_rating, review_count, genre FROM games ORDER BY title")
+        cursor.execute("SELECT game_id, title, developer, release_year, description, average_rating, review_count, genre, cover_url FROM games ORDER BY title")
         rows = cursor.fetchall()
         cursor.close()
         connection.close()
@@ -26,21 +27,23 @@ class Game:
         # turn each row into a Game object
         games = []
         for row in rows:
-            games.append(Game(row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7]))
+            games.append(Game(row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8]))
         return games
+
+    
     @staticmethod
     def find_by_id(game_id):
         # fetch a single game by its id, return a Game object or None
         connection = get_db_connection()
         cursor = connection.cursor()
-        cursor.execute("SELECT game_id, title, developer, release_year, description, average_rating, review_count, genre FROM games WHERE game_id = %s", (game_id,))
+        cursor.execute("SELECT game_id, title, developer, release_year, description, average_rating, review_count, genre, cover_url FROM games WHERE game_id = %s", (game_id,))
         row = cursor.fetchone()
         cursor.close()
         connection.close()
 
         if row is None:
             return None
-        return Game(row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7])
+        return Game(row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8])
 
     @staticmethod
     def recompute_rating(game_id):
@@ -75,7 +78,7 @@ class Game:
         connection = get_db_connection()
         cursor = connection.cursor()
         cursor.execute(
-            "SELECT game_id, title, developer, release_year, description, average_rating, review_count, genre FROM games WHERE title ILIKE %s ORDER BY title",
+            "SELECT game_id, title, developer, release_year, description, average_rating, review_count, genre, cover_url FROM games WHERE title ILIKE %s ORDER BY title",
             ("%" + term + "%",),
         )
         rows = cursor.fetchall()
@@ -83,19 +86,19 @@ class Game:
         connection.close()
         games = []
         for row in rows:
-            games.append(Game(row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7]))
+            games.append(Game(row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8]))
         return games
 
 
     @staticmethod
-    def create(title, developer, release_year, description, genre):
+    def create(title, developer, release_year, description, genre, cover_url):
         # insert a new game, return its new id
         connection = get_db_connection()
         cursor = connection.cursor()
         try:
             cursor.execute(
-                "INSERT INTO games (title, developer, release_year, description, genre) VALUES (%s, %s, %s, %s, %s) RETURNING game_id",
-                (title, developer, release_year, description, genre),
+                "INSERT INTO games (title, developer, release_year, description, genre, cover_url) VALUES (%s, %s, %s, %s, %s, %s) RETURNING game_id",
+                (title, developer, release_year, description, genre, cover_url),
             )
             new_id = cursor.fetchone()[0]
             connection.commit()
@@ -107,14 +110,14 @@ class Game:
 
 
     @staticmethod
-    def update(game_id, title, developer, release_year, description, genre):
+    def update(game_id, title, developer, release_year, description, genre, cover_url):
         # update to an existing game, return the game_id or None if it did not exist
         connection = get_db_connection()
         cursor = connection.cursor()
         try:
             cursor.execute(
-                "UPDATE games SET title = %s, developer = %s, release_year = %s, description = %s, genre = %s WHERE game_id = %s RETURNING game_id",
-                (title, developer, release_year, description, genre, game_id),
+                "UPDATE games SET title = %s, developer = %s, release_year = %s, description = %s, genre = %s, cover_url = %s WHERE game_id = %s RETURNING game_id",
+                (title, developer, release_year, description, genre, cover_url, game_id),
             )
             row = cursor.fetchone()
             connection.commit()
@@ -153,7 +156,7 @@ class Game:
         connection = get_db_connection()
         cursor = connection.cursor()
         cursor.execute(
-            "SELECT game_id, title, developer, release_year, description, average_rating, review_count, genre FROM games WHERE genre = %s ORDER BY title",
+            "SELECT game_id, title, developer, release_year, description, average_rating, review_count, genre, cover_url FROM games WHERE genre = %s ORDER BY title",
             (genre,),
         )
         rows = cursor.fetchall()
@@ -161,5 +164,5 @@ class Game:
         connection.close()
         games = []
         for row in rows:
-            games.append(Game(row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7]))
+            games.append(Game(row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8]))
         return games

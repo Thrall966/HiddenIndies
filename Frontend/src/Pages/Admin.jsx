@@ -11,6 +11,8 @@ function Admin() {
     const [releaseYear, setReleaseYear] = useState("");
     const [description, setDescription] = useState("");
     const [genre, setGenre] = useState("");
+    const [coverUrl, setCoverUrl] = useState("");
+    const [uploadingCover, setUploadingCover] = useState(false);
     const [message, setMessage] = useState("");
     const [editingId, setEditingId] = useState(null);
     const [editTitle, setEditTitle] = useState("");
@@ -18,9 +20,11 @@ function Admin() {
     const [editYear, setEditYear] = useState("");
     const [editDescription, setEditDescription] = useState("");
     const [editGenre, setEditGenre] = useState("");
+    const [editCoverUrl, setEditCoverUrl] = useState("");
     const [users, setUsers] = useState([]);
     const [gameToDelete, setGameToDelete] = useState(null);
     const [userToDelete, setUserToDelete] = useState(null);
+    
 
 
     // load all games so the admin can manage them
@@ -51,6 +55,33 @@ function Admin() {
     loadUsers();
 }, []);
 
+    // upload a cover image to cloudinary and store the url via setter
+    async function uploadCover(event, setter) {
+        const file = event.target.files[0];
+        if (!file) {
+            return;
+        }
+        setUploadingCover(true);
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("upload_preset", "cloudinary");
+        try {
+            const response = await fetch(
+                "https://api.cloudinary.com/v1_1/hiaob1yl/image/upload", 
+                { method: "POST", body: formData }
+            );
+            const data = await response.json();
+            if (data.secure_url) {
+                setter(data.secure_url);
+            } else {
+                setMessage("Could not upload cover image.");
+            }
+        } catch (error) {
+            setMessage("Could not reach the image service.");
+        }
+        setUploadingCover(false);
+    }
+
     // create a new game via the admin endpoint
     async function createGame() {
     const token = localStorage.getItem("token");
@@ -66,6 +97,7 @@ function Admin() {
         release_year: Number(releaseYear),
         description: description,
         genre: genre,
+        cover_url: coverUrl,
     }),
 });
 
@@ -124,6 +156,7 @@ if (response.ok) {
     setEditYear(String(game.release_year));
     setEditDescription(game.description);
     setEditGenre(game.genre);
+    setEditCoverUrl(game.cover_url || "");
    }
 
    // save the edited game via the admin endpoint
@@ -141,6 +174,7 @@ if (response.ok) {
             release_year : Number(editYear),
             description: editDescription,
             genre: editGenre,
+            cover_url: editCoverUrl,
         }),
     });
 
@@ -299,6 +333,29 @@ return (
                     <option key={g} value={g}>{g}</option>
                 ))}
             </select>
+            {/* cover image upload */}
+            <div className="flex items-center gap-3">
+              {coverUrl ? (
+                <img
+                  src={coverUrl}
+                  alt="cover preview"
+                  className="w-16 h-20 object-cover rounded border border-[#d8d8d0]"
+                />
+              ) : (
+                <div className="w-16 h-20 rounded border border-[#d8d8d0] bg-[#f0f0ea] flex items-center justify-center text-[10px] text-[#9a9a90] text-center">
+                  no cover
+                </div>
+              )}
+              <label className="text-xs text-[#2b2b2b] underline cursor-pointer">
+                {uploadingCover ? "uploading..." : "upload cover image"}
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => uploadCover(e, setCoverUrl)}
+                  className="hidden"
+                />
+              </label>
+            </div>
             <button
                 onClick={createGame}
                 className="h-[38px] px-4 bg-[#2b2b2b] text-white text-sm font-semibold rounded-md hover:bg-black transition self-start"
@@ -348,6 +405,29 @@ return (
               </option>
             ))}
           </select>
+          {/* cover image upload for editing */}
+          <div className="flex items-center gap-3">
+            {editCoverUrl ? (
+              <img
+                src={editCoverUrl}
+                alt="cover preview"
+                className="w-16 h-20 object-cover rounded border border-[#d8d8d0]"
+              />
+            ) : (
+              <div className="w-16 h-20 rounded border border-[#d8d8d0] bg-[#f0f0ea] flex items-center justify-center text-[10px] text-[#9a9a90] text-center">
+                no cover
+              </div>
+            )}
+            <label className="text-xs text-[#2b2b2b] underline cursor-pointer">
+              {uploadingCover ? "uploading..." : "upload cover image"}
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => uploadCover(e, setEditCoverUrl)}
+                className="hidden"
+              />
+            </label>
+          </div>
           <div className="flex gap-3">
             <button
               onClick={() => saveGame(editingId)}

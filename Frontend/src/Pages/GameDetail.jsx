@@ -91,6 +91,17 @@ async function addToWishlist() {
 
   return (
     <div className="p-8 max-w-3xl">
+  {game.cover_url ? (
+        <img
+          src={game.cover_url}
+          alt={game.title}
+          className="w-48 h-64 object-cover rounded-lg mb-4 border border-[#e6e6e0]"
+        />
+      ) : (
+        <div className="w-48 h-64 rounded-lg mb-4 bg-[#f0f0ea] flex items-center justify-center text-sm text-[#9a9a90]">
+          no cover
+        </div>
+      )}
       <h2 className="text-2xl font-bold text-[#2b2b2b]">{game.title}</h2>
       <div className="text-sm text-[#7a7a72] mt-1">
         {game.developer} · {game.release_year} · {game.genre}

@@ -34,6 +34,7 @@ def get_games(search: str = "", genre: str = ""):
             "average_rating": float(game.average_rating),
             "review_count": game.review_count,
             "genre": game.genre,
+            "cover_url": game.cover_url,
         })
     return result
 
@@ -59,6 +60,7 @@ def get_game(game_id: int):
         "review_count": game.review_count,
         "genre": game.genre,
         "gem_score": gem_score,
+        "cover_url": game.cover_url,
     }
 
 # returns all reviews for a single game
@@ -183,13 +185,14 @@ class GameRequest(BaseModel):
     release_year: int
     description: str
     genre: str
+    cover_url: str | None = None
 
 
 
 #admin: add a new game to the catalogue
 @router.post("/admin/games")
 def admin_create_game(payload: GameRequest, admin=Depends(get_current_admin)):
-    new_id = Game.create(payload.title, payload.developer, payload.release_year, payload.description, payload.genre)
+    new_id = Game.create(payload.title, payload.developer, payload.release_year, payload.description, payload.genre, payload.cover_url)
     return {"message": "Game created.", "game_id": new_id}
 
 
@@ -197,7 +200,7 @@ def admin_create_game(payload: GameRequest, admin=Depends(get_current_admin)):
 # admin: edit an existing game
 @router.put("/admin/games/{game_id}")
 def admin_update_game(game_id: int, payload: GameRequest, admin=Depends(get_current_admin)):
-    updated = Game.update(game_id, payload.title, payload.developer, payload.release_year, payload.description, payload.genre)
+    updated = Game.update(game_id, payload.title, payload.developer, payload.release_year, payload.description, payload.genre, payload.cover_url)
     if updated is None:
         raise HTTPException(status_code=404, detail="Game not found.")
     return {"message": "Game Updated."}
